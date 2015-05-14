@@ -44,16 +44,22 @@ def crearTablas():
 #- Funciones Sensores
 #-------------------------------------------------------
 
-#--Funcion para insertar sensores
+#--Funcion para cargar la red de sensores
 
-def nuevoSensor(ref, tipo,loc):
+def cargarSensores():
 
 	bd = sqlite3.connect('database.sqlite3')
 	cursor = bd.cursor()
 
-	sql = "INSERT INTO Sensores(Referencia, Tipo, Localizacion) VALUES (1001, 'Temperatura', 1)"
+	r_sensores =[ (1001,'Temperatura', 1),
+			(1002,'Temperatura', 2),
+			(1003,'Humedad', 1),
+               		(1024,'Humedad', 2),
+			(2048,'Presion', 1)]
+
+	sql = 'INSERT INTO Sensores(Referencia, Tipo, Localizacion) VALUES(?,?,?)'
 	try:
-   		cursor.execute(sql)
+   		cursor.executemany(sql,r_sensores)
    		bd.commit()
 	except sqlite3.Error, e:
 		print "Error %s:" %e.args[0]
@@ -61,8 +67,12 @@ def nuevoSensor(ref, tipo,loc):
 
 	bd.close()
 
-#--Funcion para borrar sensores
-#--Borra el sensor de la tabla de sensores y todas las medidas asociadas
+#--Funcion para crear un sensor nuevo
+#def nuevoSensor():
+
+
+
+#--Funcion para mostrar sensores
 
 def mostrarSensores():
 
@@ -83,13 +93,16 @@ def mostrarSensores():
 
 	bd.close()
 
+#--Funcion para borrar sensores
+#--Borra el sensor de la tabla de sensores y todas las medidas asociadas
+
 def borrarSensor(ref):
 
 	bd = sqlite3.connect('database.sqlite3')
 	cursor = bd.cursor()
 
-	sql = "DELETE FROM Sensores WHERE REFERENCIA=ref"
-	sql1 = "DELETE FROM Medidas WHERE REFERENCIA=ref" 
+	sql = "DELETE FROM Sensores WHERE Referencia=ref"
+	sql1 = "DELETE FROM Medidas WHERE Referencia=ref" 
 	try:
 		cursor.execute(sql)
 		cursor.execute(sql1)
@@ -99,4 +112,59 @@ def borrarSensor(ref):
 		print "Error %s:" %e.args[0]
 		bd.rollback()
 
+	bd.close()
+#-------------------------------------------------------
+#- Funciones Medidas
+#-------------------------------------------------------
+
+#--Funcion para insertar una nueva medida
+
+def nuevaMedida(ref, valor, fecha, hora):
+	
+	bd = sqlite3.connect('database.sqlite3')
+	cursor = bd.cursor()
+	medida=(ref,valor,fecha,hora)
+	sql = "INSERT INTO Medidas (Referencia, Valor, Fecha, Hora) VALUES(?,?,?,? )"
+	try:
+   		cursor.execute(sql,medida)
+   		bd.commit()
+	except sqlite3.Error, e:
+		print "Error %s:" %e.args[0]
+   		bd.rollback()
+
+   	bd.close()
+
+#--Funcion para borrar medidas
+
+def borrarMedida(ref, fecha, hora):
+
+	bd = sqlite3.connect('database.sqlite3')
+	cursor = bd.cursor()
+	medida=(ref,fecha,hora)
+	sql = "DELETE FROM Medidas WHERE (Referencia=? AND Fecha=? AND  Hora=?)";
+	try:
+	   cursor.execute(sql, medida)
+	   bd.commit()
+
+        except sqlite3.Error, e:
+                print "Error %s:" %e.args[0]
+                bd.rollback()
+
+	bd.close()
+
+#-- Funcion mostrar medidas recogidas por un sensor
+
+def medidasSensor(ref):
+	bd = sqlite3.connect('database.sqlite3')
+	cursor = bd.cursor()
+	sql = "SELECT * FROM Medidas"
+	try:
+		cursor.execute(sql)
+		rows=cursor.fetchall()
+		for row in rows:
+			print "%d %d %d %s %s " % (row[0], row[1], row[2],row[3],row[4])
+
+	except sqlite3.Error, e:
+        	print "Error %s:" %e.args[0]
+        	bd.rollback()
 	bd.close()
