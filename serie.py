@@ -8,7 +8,11 @@ import time
 
 def leerSerial():
  if s.inWaiting():
-   print s.readline()
+  return s.readline()
+  #print s.readline()
+ else:
+  return ""
+
 
 #--Configuracion del modulo HC-11 con comandos AT
 
