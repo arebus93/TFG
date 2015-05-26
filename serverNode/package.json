@@ -1,11 +1,12 @@
 {
-  "name": "Raspberry-Pi-Status",
+  "name": "DOMOlabo_B105",
   "version": "0.1.0",
-  "description": "Raspberry Pi monitoring panel",
+  "description": "Panel de monitorizacion sensores B105",
   "main": "server.js",
-  "repository": "https://github.com/GeekyTheory/Raspberry-Pi-Status",
-  "author": "Mario Pérez Esteso <mario@geekytheory.com>",
+  "repository": "https://github.com/arebus93/TFG",
+  "author": "Adrián Arévalo Aguirre",
   "dependencies": {
+   "sqlite3": "2.1.5",
    "socket.io": "~0.9.14"
   }
 }
