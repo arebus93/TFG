@@ -1,0 +1,139 @@
+<!--
+    Autor: Adrián Arévalo Aguirre
+-->
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>
+		DOMOLabo B105
+	</title>
+    <!-- Importo el módulo socket.io que tengo en el proyecto -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery.js"></script>
+    <!-- Importo el archivo Javascript de Highcharts directamente desde su servidor -->
+      <script src="http://code.highcharts.com/stock/highstock.js"></script>
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+</head>
+<body>
+
+<!-- Main jumbotron for a primary marketing message or call to action -->
+    <div class="container">
+        
+    <div class="row marketing">
+      <div class="col-lg-6">
+        <div class="container" id="chartTemp" style="width:100%; height:300px;"></div>
+      </div>
+   
+      <div class="col-lg-6">
+        <div class="container" id="chartHum" style="width:100%; height:300px;"></div>
+      </div>
+  </div>
+
+    <!-- Creo el div donde tendré la gráfica. Le digo que ocupe todo el ancho
+         de la pantalla y 400px de alto -->
+
+    <!-- Comienza el Javascript -->
+    <script>
+    // Creo un WebSocket. ¡Poned la IP de vuestra Raspberry Pi! 
+    var socket = io.connect('http://'+ location.host);
+    // console.log(location.host)
+  
+    // Creo un nuevo objeto 'Chart'
+    var chartTemp, chartHum;
+    chartTemp = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartTemp', 
+            defaultSeriesType: 'spline',
+            events: {
+                load: function() {
+                    // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+                    socket.on('temperatureUpdate', function (time, data) {
+                        var series = chartTemp.series[0];
+                        series.addPoint([time, data]);
+                    });
+                }
+            }
+        },
+        rangeSelector : {
+            selected : 100
+        },
+        title: {
+            text: 'Temperatura'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150,
+            maxZoom: 20 * 1000
+        },
+        yAxis: {
+            minPadding: 0.2,
+            maxPadding: 0.2,
+            title: {
+                text: 'Temperatura ºC',
+                margin: 10
+            }
+        },
+        series: [{
+            name: 'Temp',
+            data: []
+        }],
+        credits: {
+                enabled: false
+        }
+    });
+
+      chartHum = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartHum', 
+            defaultSeriesType: 'spline',
+            events: {
+                load: function() {
+                    // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+                    socket.on('cpuUsageUpdate', function (time, data) {
+                        var series = chartHum.series[0];
+                        series.addPoint([time, data]);
+                    });
+                }
+            }
+        },
+        rangeSelector : {
+            selected : 100
+        },
+        title: {
+            text: 'Humedad'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150,
+            maxZoom: 20 * 1000
+        },
+        yAxis: {
+            minPadding: 0.2,
+            maxPadding: 0.2,
+            title: {
+                text: 'Humedad (%)',
+                margin: 10
+            }
+        },
+        series: [{
+            name: 'Hum',
+            data: []
+        }],
+        credits: {
+                enabled: false
+        }
+    });
+
+    </script>   
+</body>
+</html>
