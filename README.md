@@ -12,7 +12,7 @@ This project has been developed by [Adrián Arévalo Aguirre](http://github.com/
 #### Contributors
 
 # Screenshot
-![Raspberry Pi Monitoring Panel](http://i1.wp.com/geekytheory.com/wp-content/uploads/2013/12/panel-monitorizacion-raspberry-pi-node-js.png "Raspberry Pi Monitoring Panel")
+//![Raspberry Pi Monitoring Panel](http://i1.wp.com/geekytheory.com/wp-content/uploads/2013/12/panel-monitorizacion-raspberry//-pi-node-js.png "Raspberry Pi Monitoring Panel")
 
 # How to install
 
@@ -27,9 +27,9 @@ $ cd
 $ sudo wget http://nodejs.org/dist/v0.10.24/node-v0.10.24-linux-arm-pi.tar.gz
 $ cd /usr/local
 $ sudo tar xvzf ~/node-v0.10.24-linux-arm-pi.tar.gz --strip=1
-
 ~~~
 Para comprobar que se ha instalado correctamente, comprobar con:
+~~~
 node -v
 ~~~
 **STEP 3: Instalar GIT y clonar el repositorio**
@@ -42,7 +42,7 @@ $ git clone https://github.com/arebus93/TFG.git
 ~~~
 $ cd TFG
 ~~~
-**STEP 5:**
+**STEP 5: Instalar las dependencias**
 ~~~
 $ npm install
 ~~~
