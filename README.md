@@ -53,11 +53,11 @@ npm config set registry http://registry.npmjs.org/
 ~~~
 npm install
 ~~~
-**STEP 6:**
+**STEP 6: Eejcutar el servidor **
 ~~~
 $ nodejs server.js
 ~~~
-**STEP 7:**
+**STEP 7: Conectarse desde un navegador**
 
 Open a browser with your Raspberry Pi's IP and start to listen the port 8000. For example: [http://192.168.1.100:8000](http://192.168.1.100:8000)
 
