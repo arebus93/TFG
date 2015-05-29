@@ -1,9 +1,9 @@
-Raspberry Pi Monitoring Panel
+DOMOlabo B105
 ===================
 
 This project consist on a Node.js-based Raspberry Pi monitoring panel that allows to check the temperature, presence, light, Battery, Power Consumption, Presure, Humidity. 
 
-This is a very useful web app for checking the status not only of the B105 lab but also of a complete university campus .
+This is a very useful web app for checking the status not only of the B105 lab but also of a complete university campus.
 
 # Author
 
@@ -16,21 +16,31 @@ This project has been developed by [Adrián Arévalo Aguirre](http://github.com/
 
 # How to install
 
-**STEP 1:**
+**STEP 1: Actualizar la raspbery**
 ~~~
-$ sudo apt-get update && sudo apt-get upgrade
+$ sudo apt-get update 
+$ sudo apt-get upgrade
 ~~~
-**STEP 2:**
+**STEP 2: Instalacion Node v0.10.2**
 ~~~
-$ sudo apt-get install nodejs npm git
+$ cd
+$ sudo wget http://nodejs.org/dist/v0.10.24/node-v0.10.24-linux-arm-pi.tar.gz
+$ cd /usr/local
+$ sudo tar xvzf ~/node-v0.10.24-linux-arm-pi.tar.gz --strip=1
+
 ~~~
-**STEP 3:**
+Para comprobar que se ha instalado correctamente, comprobar con:
+node -v
 ~~~
+**STEP 3: Instalar GIT y clonar el repositorio**
+~~~
+$ sudo apt-get install git
+
 $ git clone https://github.com/arebus93/TFG.git
 ~~~
 **STEP 4:**
 ~~~
-$ cd serverNode
+$ cd TFG
 ~~~
 **STEP 5:**
 ~~~
