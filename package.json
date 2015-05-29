@@ -1,0 +1,12 @@
+{
+  "name": "DOMOlabo_B105",
+  "version": "0.1.0",
+  "description": "Panel de monitorizacion sensores B105",
+  "main": "server.js",
+  "repository": "https://github.com/arebus93/TFG",
+  "author": "Adrián Arévalo Aguirre",
+  "dependencies": {
+   "sqlite3": "~2.2.3",
+   "socket.io": "~0.9.14"
+  }
+}
