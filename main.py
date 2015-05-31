@@ -31,9 +31,29 @@ db.crearTablas()
 #- con cargasensores()
 
 precarga_sensores =[ (1,11,'Temperatura', 1),
-        	     (1,17,'Humedad', 1),
-        	     (1,16,'Presion', 1),
-              	     (1,13,'Luminosidad',1)]
+                     (1,12,'Presencia', 1),
+                     (1,13,'Luminosidad', 1),
+                     (1,15,'Consumo', 1),
+                     (1,16,'Presion', 1),
+                     (1,17,'Humedad', 1),
+        	     (2,21,'Temperatura', 2),
+                     (2,22,'Presencia', 2),
+                     (2,23,'Luminosidad', 2),
+                     (2,25,'Consumo', 2),
+                     (2,26,'Presion', 2),
+                     (2,27,'Humedad', 2),
+                     (3,31,'Temperatura', 3),
+                     (3,32,'Presencia', 3),
+                     (3,33,'Luminosidad', 3),
+                     (3,35,'Consumo', 3),
+                     (3,36,'Presion', 3),
+                     (3,37,'Humedad', 3),
+                     (4,41,'Temperatura', 4),
+                     (4,42,'Presencia', 4),
+                     (4,43,'Luminosidad', 4),
+                     (4,45,'Consumo', 4),
+                     (4,46,'Presion', 4),
+                     (4,47,'Humedad', 4)]
 
 db.nuevoSensor(precarga_sensores)
 r_sensores=db.cargarSensores()

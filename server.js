@@ -7,6 +7,7 @@ var app = require('http').createServer(handler).listen(port),
   sqlite3=require('sqlite3').verbose();
   var db= new sqlite3.Database('database.sqlite3');
   var connectCounter = 0;
+  var Tsensores=['T','P','L','B','C','A','H'];
 
 //Si todo va bien al abrir el navegador, cargaremos el archivo index.html
 function handler(req, res) {
@@ -37,19 +38,35 @@ io.sockets.on('connection', function(socket) {
   console.log("NUMBER OF CONNECTIONS--: "+connectCounter);
  });
 
+
 // Funcion de precarga de los datos almacenados
-db.all("SELECT * FROM Medidas", function (err,rows) {
+ db.all('SELECT Referencia FROM Sensores', function (err,refs) {
     if(err){
-     console.log('exec error: ' + err);
-    }else{
-      for(i in rows){
-        if(((rows[i].Referencia)%10)==1){
-          temp=parseFloat(rows[i].Valor)/10;
-          date=new Date(rows[i].Fecha+" "+rows[i].Hora).getTime();
-          //console.log(temp+"  "+date);
-          socket.emit('temperatureUpdate',date,temp);
-        }
+       console.log('exec error: ' + err);
+    }else{ //cargamos los sensores
+	for(var i=0, l=refs.length; i<l;i++){
+	var r=refs[i].Referencia;
+	 db.all("SELECT Referencia, Valor, Fecha, Hora FROM Medidas WHERE Referencia='" + r + "'" , function ( err2,rows) {
+          if(err) {
+            console.log('exec error: ' + err2);
+          }else {
+  	    console.log(rows);
+            var datos=[];
+	    for(var j=0;j<rows.length;j++){
+             var ref=rows[j].Referencia;
+	     switch (ref%10){
+                 case 1: //Temperatura
+                  var temp=parseFloat(rows[j].Valor)/10;
+                  var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
+                  datos.push([date,temp]);
+                  break;
+	     }
+	    } 
+	    tipo=Tsensores[(ref%10)-1];
+            socket.emit(tipo+'Load',tipo+(parseInt(ref/10)), datos);
+          }
+        })  
       }
-    }
-  });
+  }
+})
 });
