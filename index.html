@@ -5,19 +5,19 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>
-		DOMOLabo B105
-	</title>
+    <title>
+        DOMOLabo B105
+    </title>
     <!-- Importo el módulo socket.io que tengo en el proyecto -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery.js"></script>
     <!-- Importo el archivo Javascript de Highcharts directamente desde su servidor -->
       <script src="http://code.highcharts.com/stock/highstock.js"></script>
     <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
 
 <!-- Optional theme -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
 
 <!-- Latest compiled and minified JavaScript -->
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.2/js/bootstrap.min.js"></script>
@@ -29,7 +29,20 @@
 <!--Graficas de las medidas-->
 
   <div class="container">
-        
+    
+    <div class="row marketing">
+      <div class="col-lg-12">
+        <div class="panel panel-primary" style="width:100% ;">
+          <div class="panel-heading" style=" background: #008000;" >Panel Informacion Domotica B105</div>
+          <div class="panel-body">
+          <p id="p_hostname">Here you can see the general info of the domotics services availabe in the labo </p>
+          </div>
+        </div>
+      </div>
+    </div>
+   <!-- Creo el div donde tendré la gráfica. Le digo que ocupe todo el ancho
+     de la pantalla y 300px de alto -->
+
     <div class="row marketing">
       <div class="col-lg-6">
         <div class="container" id="chartTemp" style="width:100%; height:300px;"></div>
@@ -46,47 +59,54 @@
       </div>
 
       <div class="col-lg-6">
-        <div class="container" id="chartLuz" style="width:100%; height:300px;"></div>
+        <div class="container" id="chartLum" style="width:100%; height:300px;"></div>
       </div>
     </div>
-  </div>
-    <!-- Creo el div donde tendré la gráfica. Le digo que ocupe todo el ancho
-         de la pantalla y 400px de alto -->
 
+    <div class="row marketing">
+      <div class="col-lg-6">
+        <div class="container" id="chartAtm" style="width:100%; height:300px;"></div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="container" id="chartHum" style="width:100%; height:300px;"></div>
+      </div>
+    </div>
+
+  </div>
 
     <!-- Comienza el Javascript -->
     <script>
-
     // Creo un WebSocket. 
     var socket = io.connect('http://'+ location.host);
     // console.log(location.host)
   
-    // Creo un nuevo objeto 'Chart'
-    var chartTemp, chartPres, chartCons, chartLuz;
+    // Creo las graficas de Temperatura, Presencia,Consumo, Luminosidad,
+    //Presion y Humedad.
+    var chartTemp, chartPres, chartCons, chartLuz, chartAtm, chartHum;
 
+    //Grafica de Temperatura
     chartTemp = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartTemp', 
             events: {
                 load: function() {
-       		 //Cuando cargo la grafica por primera vez, cago las
-		 // medidas alamcenadas de cada sensor
-                    socket.on('TLoad', function (id, datos) {
-                        chartTemp.addSeries({
-                      	name: id,
-                        data:datos,
-			type:'spline'
-                        },false);
-			chartTemp.redraw();		   
-		    });
-			
-
-	            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-                    socket.on('temperatureUpdate', function (time, data) {
-                        var series = chartTemp.series[0];
-                        series.addPoint([time, data]);
-                    });
-                }
+             //Cuando cargo la grafica por primera vez, cago las
+            // medidas alamcenadas de cada sensor
+            socket.on('TLoad', function (id, datos) {
+                chartTemp.addSeries({
+                    name: id,
+                    data:datos,
+                    type:'spline'
+                },false);
+                chartTemp.redraw();        
+            });
+            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+            socket.on('temperatureUpdate', function (time, data) {
+                var series = chartTemp.series[0];
+                series.addPoint([time, data]);
+            });
+            }
             }
         },
         rangeSelector : {
@@ -104,11 +124,11 @@
             minPadding: 0.2,
             maxPadding: 0.2,
         title: {
-                text: 'Temperatura ºC',
+                text: 'Temp (ºC)',
                 margin: 10
             }
         },
- 	legend: {
+        legend: {
                 enabled: true
         },
         exporting: {
@@ -116,6 +136,265 @@
         },
      });
 
+   //Grafica de Presencia
+    chartPres = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartPres', 
+            events: {
+                load: function() {
+             //Cuando cargo la grafica por primera vez, cago las
+            // medidas alamcenadas de cada sensor
+            socket.on('PLoad', function (id, datos) {
+                chartPres.addSeries({
+                    name: id,
+                    data:datos,
+                   step: true
+                },false);
+                chartPres.redraw();        
+            });
+            
+            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+            socket.on('presenceUpdate', function (time, data) {
+                var series = chartPres.series[0];
+                series.addPoint([time, data]);
+            });
+            }
+            }
+        },
+        rangeSelector : {
+            selected : 1
+        },
+        title: {
+            text: 'Presencia/Ausencia'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150,
+            maxZoom: 20 * 1000
+        },
+        yAxis: {
+            minPadding: 0.2,
+            maxPadding: 0.2,
+        title: {
+                text: 'Pres(1)/Aus(0)',
+                margin: 10
+            }
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+
+   //Grafica de Consumo
+    chartCons = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartCons', 
+            events: {
+                load: function() {
+             //Cuando cargo la grafica por primera vez, cago las
+            // medidas alamcenadas de cada sensor
+            socket.on('CLoad', function (id, datos) {
+                chartCons.addSeries({
+                    name: id,
+                    data:datos,
+                    type:'spline'
+                },false);
+                chartCons.redraw();        
+            });
+            
+            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+            socket.on('EnergyUpdate', function (time, data) {
+                var series = chartCons.series[0];
+                series.addPoint([time, data]);
+            });
+            }
+            }
+        },
+        rangeSelector : {
+            selected : 1
+        },
+        title: {
+            text: 'Consumo'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150,
+            maxZoom: 20 * 1000
+        },
+        yAxis: {
+            minPadding: 0.2,
+            maxPadding: 0.2,
+        title: {
+                text: 'Consum (W)',
+                margin: 10
+            }
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+
+   //Grafica de Luminosidad
+    chartLum = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartLum', 
+            events: {
+                load: function() {
+             //Cuando cargo la grafica por primera vez, cago las
+            // medidas alamcenadas de cada sensor
+            socket.on('LLoad', function (id, datos) {
+                chartLum.addSeries({
+                    name: id,
+                    data:datos,
+                    type:'spline'
+               },false);
+                chartLum.redraw();        
+            });
+            
+            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+            socket.on('LightUpdate', function (time, data) {
+                var series = chartLum.series[0];
+                series.addPoint([time, data]);
+            });
+            }
+            }
+        },
+        rangeSelector : {
+            selected : 1
+        },
+        title: {
+            text: 'Luminosidad'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150,
+            maxZoom: 20 * 1000
+        },
+        yAxis: {
+            minPadding: 0.2,
+            maxPadding: 0.2,
+        title: {
+                text: 'Lum (lux)',
+                margin: 10
+            }
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+
+  //Grafica de Presion
+    chartAtm = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartAtm', 
+            events: {
+                load: function() {
+             //Cuando cargo la grafica por primera vez, cago las
+            // medidas alamcenadas de cada sensor
+            socket.on('ALoad', function (id, datos) {
+                chartAtm.addSeries({
+                    name: id,
+                    data:datos,
+                    type:'spline'
+               },false);
+                chartAtm.redraw();        
+            });
+            
+            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+            socket.on('PresureUpdate', function (time, data) {
+                var series = chartAtm.series[0];
+                series.addPoint([time, data]);
+            });
+            }
+            }
+        },
+        rangeSelector : {
+            selected : 1
+        },
+        title: {
+            text: 'Presión Atmosférica'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150,
+            maxZoom: 20 * 1000
+        },
+        yAxis: {
+            minPadding: 0.2,
+            maxPadding: 0.2,
+        title: {
+                text: 'Pres (mbar/hPa)',
+                margin: 10
+            }
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+
+  //Grafica de Humedad
+    chartHum = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartHum', 
+            events: {
+                load: function() {
+             //Cuando cargo la grafica por primera vez, cago las
+            // medidas alamcenadas de cada sensor
+            socket.on('HLoad', function (id, datos) {
+                chartHum.addSeries({
+                    name: id,
+                    data:datos,
+                    type:'spline'
+               },false);
+                chartHum.redraw();        
+            });
+            
+            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+            socket.on('HumidityUpdate', function (time, data) {
+                var series = chartHum.series[0];
+                series.addPoint([time, data]);
+            });
+            }
+            }
+        },
+        rangeSelector : {
+            selected : 1
+        },
+        title: {
+            text: 'Humedad relativa'
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150,
+            maxZoom: 20 * 1000
+        },
+        yAxis: {
+            minPadding: 0.2,
+            maxPadding: 0.2,
+        title: {
+                text: 'Hum (%)',
+                margin: 10
+            }
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
     </script>   
 </body>
 </html>
