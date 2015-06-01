@@ -53,7 +53,8 @@ precarga_sensores =[ (1,11,'Temperatura', 1),
                      (4,43,'Luminosidad', 4),
                      (4,45,'Consumo', 4),
                      (4,46,'Presion', 4),
-                     (4,47,'Humedad', 4)]
+                     (4,47,'Humedad', 4),
+		     (5,51,'Temperatura',5)]
 
 db.nuevoSensor(precarga_sensores)
 r_sensores=db.cargarSensores()
