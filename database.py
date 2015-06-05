@@ -13,7 +13,7 @@ def crearTablas():
 	sql = """CREATE TABLE IF NOT EXISTS Sensores(
 		Num_registro INTEGER PRIMARY KEY,
 		Id INTEGER NOT NULL CHECK (Id>0),
-		Referencia INTEGER NOT NULL UNIQUE CHECK (FLOOR(Referencia/10)==Id ),
+		Referencia INTEGER NOT NULL UNIQUE CHECK (Referencia>0),
 		Tipo VARCHAR(40) NOT NULL,
 		Localizacion INTEGER NOT NULL CHECK (Localizacion>0))
 		"""

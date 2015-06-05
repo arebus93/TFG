@@ -9,11 +9,11 @@ var app = require('http').createServer(handler).listen(port),
 
 var db= new sqlite3.Database('database.sqlite3');
 var connectCounter = 0;
-var Tsensores=['T','P','L','B','C','A','H'];
-var r=0; //Referencia de sensor
-var lastRead=0; //Ultimo Num_registro leido de Medidas
+var timerWeb =30000; //Tiempo de refresco en ms(30s).
+var lastRead=0; //Ultimo Num_registro leido de Medidas.
+var T_sensors=['T','P','L','B','C','A','H'];
 
-//Si todo va bien al abrir el navegador, cargaremos el archivo index.html
+//Si todo va bien al abrir el navegador, cargaremos el html adecuado.
 function handler(req, res) {
   var path = url.parse(req.url).pathname;
   switch(path) {
@@ -56,83 +56,111 @@ io.sockets.on('connection', function(socket) {
   console.log("NUMBER OF CONNECTIONS--: "+connectCounter);
  });
 
-
-// Funcion de precarga de los datos almacenados
-db.all('SELECT Referencia FROM Sensores ORDER BY Referencia ASC', function (err,refs) {
+// Precarga de los datos almacenados.
+db.all("SELECT Referencia FROM Sensores ORDER BY Referencia", function (err,refs) {
     if(err){
        console.log('exec error: ' + err);
     }else{ //cargamos los sensores
-      for(var i=0, l=refs.length; i<l;i++){
+      for(var i=0, l1=refs.length; i<l1;i++){
         var r=refs[i].Referencia;
         (function(r){
-            db.all("SELECT Valor, Fecha, Hora FROM Medidas WHERE Referencia='" + r + "'" , function ( err2,rows) {
+            db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE Referencia='" + r + "'ORDER BY Num_registro" , function ( err2,rows) {
             if(err) {
               console.log('exec error: ' + err2);
             }else {
-              console.log(rows);
-              console.log(r);
-              var datos=[];
-              switch(r%10){
-
-                case 1: //Temperatura
-                  for(var j=0;j<rows.length;j++){
-                    var temp=parseFloat(rows[j].Valor)/10;
-                    var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
-                    datos.push([date,temp]);
-                  }
-                 break;
-
-                case 2: //Presencia
-                  for(var j=0;j<rows.length;j++){
-                    var pres=rows[j].Valor;
-                    var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
-                    datos.push([date,pres]);
-                  }
-                break;
-
-                case 3: //Luminosidad
-                  for(var j=0;j<rows.length;j++){
-                    var lum=rows[j].Valor;
-                    var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
-                    datos.push([date,lum]);
-                  }
-                break;
-
-                case 4: //Bateria
-                break;
-              
-                case 5: //Consumo
-                  for(var j=0;j<rows.length;j++){
-                    var cons=parseFloat(rows[j].Valor)/10;
-                    var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
-                    datos.push([date,cons]);
-                  }
-                break;
-
-                case 6: //Presion
-                  for(var j=0;j<rows.length;j++){
-                  var pres=parseFloat(rows[j].Valor)/10;
-                  var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
-                  datos.push([date,pres]);
-                  }
-                break;
-
-                case 7: //Humedad
-                  for(var j=0;j<rows.length;j++){
-                    var hum=rows[j].Valor;
-                    var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
-                    datos.push([date,hum]);
-                  }
-                break; 
-
-                default: console.log('error referencia');
-              }
-              tipo=Tsensores[(r%10)-1];
-              socket.emit(tipo+'Load',tipo+(parseInt(r/10)), datos);
+              //console.log(rows);
+              //console.log(r);
+              socket_selector(socket,rows,r,'Load');
             }
           })  
         })(r);
       }
     }
   });
+ db.close();
+
+//Actualizacion de datos en la pagina Web
+ setInterval(function(){
+ var db= new sqlite3.Database('database.sqlite3');
+  db.all("SELECT Num_registro, Referencia, Valor, Fecha, Hora FROM Medidas WHERE Num_registro>'" + lastRead + "'" , function ( err2,rows) {
+    if(err2) {
+      console.log('exec error: ' + err2);
+    }else {
+     //console.log(rows);
+     socket_selector(socket,rows,0,'Update')
+    }
+  });
+  db.close();
+ },timerWeb);
 });
+
+// Funcion para enviar datos del array (rows) a los sockets en funcion
+// de la referencia (r) y aplicar la funcion (Load/Update). Ademas actualiza el
+// el ultimo registro leido.
+
+function socket_selector(socket,rows,r,func) {
+  var datos=[];
+  var l2=rows.length;
+
+   //Actualizo el ultimo registro leido.
+  if (l2>0){//Compruebo si hay medidas para ese sensor, si no lo inicializo
+    if(lastRead <rows[(l2-1)].Num_registro)
+      {lastRead=rows[(l2-1)].Num_registro;}
+  }else{
+    if(func=='Load')
+     {socket.emit(T_sensors[((r%10)-1)]+func,T_sensors[((r%10)-1)]+(parseInt(r/10)),[])};
+  }
+
+  for(var j=0;j<l2;j++){
+    if(func=='Update')  
+      {r=rows[j].Referencia;}
+    var tipo=r%10;
+    switch(tipo){
+
+      case 1: //Temperatura
+        var temp=parseFloat(rows[j].Valor)/10;
+        var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
+        datos.push([date,temp]);      
+      break;
+
+      case 2: //Presencia
+        var pres=rows[j].Valor;
+        var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
+        datos.push([date,pres]);
+      break;
+
+      case 3: //Luminosidad
+        var lum=rows[j].Valor;
+        var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
+        datos.push([date,lum]);
+      break;
+
+      case 4: //Bateria
+      break;
+
+      case 5: //Consumo
+        var cons=parseFloat(rows[j].Valor)/10;
+        var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
+        datos.push([date,cons]);
+      break;
+
+      case 6: //Presion
+        var atm=parseFloat(rows[j].Valor)/10;
+        var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
+        datos.push([date,atm]);
+      break;
+
+      case 7: //Humedad
+        var hum=rows[j].Valor;
+        var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
+        datos.push([date,hum]);
+      break; 
+
+      default: console.log('error referencia');
+    }
+  if ( func=='Update' || j==(l2-1)){
+    socket.emit(T_sensors[tipo-1]+func,T_sensors[(tipo-1)]+(parseInt(r/10)), datos);
+    datos=[];
+    }
+  }
+}

@@ -84,29 +84,38 @@
     // Creo las graficas de Temperatura, Presencia,Consumo, Luminosidad,
     //Presion y Humedad.
     var chartTemp, chartPres, chartCons, chartLuz, chartAtm, chartHum;
+    
+    //Usar la hora local en vez de la UTC.
+      Highcharts.setOptions({
+        global: {
+          useUTC: false
+        }
+      });
 
     //Grafica de Temperatura
     chartTemp = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartTemp', 
-            events: {
+	    events: {
                 load: function() {
-             //Cuando cargo la grafica por primera vez, cago las
-            // medidas alamcenadas de cada sensor
-            socket.on('TLoad', function (id, datos) {
-                chartTemp.addSeries({
+                    
+             	  //Cuando cargo la grafica por primera vez, cago las
+           	  // medidas alamcenadas de cada sensor
+           	  socket.on('TLoad', function (id, datos) {
+               	   chartTemp.addSeries({
                     name: id,
                     data:datos,
                     type:'spline'
-                },false);
-                chartTemp.redraw();        
-            });
-            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-            socket.on('temperatureUpdate', function (time, data) {
-                var series = chartTemp.series[0];
-                series.addPoint([time, data]);
-            });
-            }
+                   },false);
+                   chartTemp.redraw();        
+                  });
+
+
+            	// Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+            	socket.on('TUpdate', function (id, datos) {
+                id.addPoint(datos[0]);
+            	});
+              }
             }
         },
         rangeSelector : {
@@ -122,11 +131,11 @@
         },
         yAxis: {
             minPadding: 0.2,
-            maxPadding: 0.2,
-        title: {
-                text: 'Temp (ºC)',
-                margin: 10
-            }
+            maxPadding: 0.2
+        },
+        tooltip: {
+                    valueDecimals: 1,
+                    valueSuffix: '°C'
         },
         legend: {
                 enabled: true
@@ -142,23 +151,23 @@
             renderTo: 'chartPres', 
             events: {
                 load: function() {
-             //Cuando cargo la grafica por primera vez, cago las
-            // medidas alamcenadas de cada sensor
-            socket.on('PLoad', function (id, datos) {
-                chartPres.addSeries({
+
+          	 //Cuando cargo la grafica por primera vez, cago las
+                 // medidas alamcenadas de cada sensor
+                 socket.on('PLoad', function (id, datos) {
+                  chartPres.addSeries({
                     name: id,
                     data:datos,
                    step: true
-                },false);
-                chartPres.redraw();        
-            });
+                  },false);
+                  chartPres.redraw();        
+                 });
             
-            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-            socket.on('presenceUpdate', function (time, data) {
-                var series = chartPres.series[0];
-                series.addPoint([time, data]);
-            });
-            }
+                // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+                 socket.on('PUpdate', function (id, datos) {
+                  id.addPoint(datos[0]);
+                 });
+               }
             }
         },
         rangeSelector : {
@@ -174,11 +183,7 @@
         },
         yAxis: {
             minPadding: 0.2,
-            maxPadding: 0.2,
-        title: {
-                text: 'Pres(1)/Aus(0)',
-                margin: 10
-            }
+            maxPadding: 0.2
         },
         legend: {
                 enabled: true
@@ -194,23 +199,23 @@
             renderTo: 'chartCons', 
             events: {
                 load: function() {
-             //Cuando cargo la grafica por primera vez, cago las
-            // medidas alamcenadas de cada sensor
-            socket.on('CLoad', function (id, datos) {
-                chartCons.addSeries({
+
+                //Cuando cargo la grafica por primera vez, cago las
+                // medidas alamcenadas de cada sensor
+                socket.on('CLoad', function (id, datos) {
+                 chartCons.addSeries({
                     name: id,
                     data:datos,
                     type:'spline'
-                },false);
-                chartCons.redraw();        
-            });
+                 },false);
+                 chartCons.redraw();        
+                });
             
-            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-            socket.on('EnergyUpdate', function (time, data) {
-                var series = chartCons.series[0];
-                series.addPoint([time, data]);
-            });
-            }
+            	// Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+           	socket.on('CUpdate', function (id, datos) {
+                 id.addPoint(datos[0]);
+                });
+              }
             }
         },
         rangeSelector : {
@@ -226,11 +231,11 @@
         },
         yAxis: {
             minPadding: 0.2,
-            maxPadding: 0.2,
-        title: {
-                text: 'Consum (W)',
-                margin: 10
-            }
+            maxPadding: 0.2
+        },
+        tooltip: {
+                valueDecimals: 1,
+                valueSuffix: 'W'
         },
         legend: {
                 enabled: true
@@ -246,23 +251,23 @@
             renderTo: 'chartLum', 
             events: {
                 load: function() {
-             //Cuando cargo la grafica por primera vez, cago las
-            // medidas alamcenadas de cada sensor
-            socket.on('LLoad', function (id, datos) {
-                chartLum.addSeries({
+
+                 //Cuando cargo la grafica por primera vez, cago las
+                 // medidas alamcenadas de cada sensor
+                 socket.on('LLoad', function (id, datos) {
+                  chartLum.addSeries({
                     name: id,
                     data:datos,
                     type:'spline'
-               },false);
-                chartLum.redraw();        
-            });
+                  },false);
+                  chartLum.redraw();        
+                 });
             
-            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-            socket.on('LightUpdate', function (time, data) {
-                var series = chartLum.series[0];
-                series.addPoint([time, data]);
-            });
-            }
+                // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+                socket.on('LUpdate', function (id, datos) {
+		 id.addPoint(datos[0]);
+                });
+              }
             }
         },
         rangeSelector : {
@@ -278,11 +283,10 @@
         },
         yAxis: {
             minPadding: 0.2,
-            maxPadding: 0.2,
-        title: {
-                text: 'Lum (lux)',
-                margin: 10
-            }
+            maxPadding: 0.2
+        },
+        tooltip: {
+                valueSuffix: 'lux'
         },
         legend: {
                 enabled: true
@@ -298,23 +302,23 @@
             renderTo: 'chartAtm', 
             events: {
                 load: function() {
-             //Cuando cargo la grafica por primera vez, cago las
-            // medidas alamcenadas de cada sensor
-            socket.on('ALoad', function (id, datos) {
-                chartAtm.addSeries({
+
+                  //Cuando cargo la grafica por primera vez, cago las
+                  // medidas alamcenadas de cada sensor
+                  socket.on('ALoad', function (id, datos) {
+                   chartAtm.addSeries({
                     name: id,
                     data:datos,
                     type:'spline'
-               },false);
-                chartAtm.redraw();        
-            });
+                  },false);
+                  chartAtm.redraw();        
+                 });
             
-            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-            socket.on('PresureUpdate', function (time, data) {
-                var series = chartAtm.series[0];
-                series.addPoint([time, data]);
-            });
-            }
+                 // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+                 socket.on('AUpdate', function (id, datos) {
+                  id.addPoint(datos[0]);
+                 });
+               }
             }
         },
         rangeSelector : {
@@ -330,11 +334,10 @@
         },
         yAxis: {
             minPadding: 0.2,
-            maxPadding: 0.2,
-        title: {
-                text: 'Pres (mbar/hPa)',
-                margin: 10
-            }
+            maxPadding: 0.2
+        },
+        tooltip: {
+                valueSuffix: 'hPa'
         },
         legend: {
                 enabled: true
@@ -350,23 +353,23 @@
             renderTo: 'chartHum', 
             events: {
                 load: function() {
-             //Cuando cargo la grafica por primera vez, cago las
-            // medidas alamcenadas de cada sensor
-            socket.on('HLoad', function (id, datos) {
-                chartHum.addSeries({
+
+                //Cuando cargo la grafica por primera vez, cago las
+                // medidas alamcenadas de cada sensor
+                 socket.on('HLoad', function (id, datos) {
+                  chartHum.addSeries({
                     name: id,
                     data:datos,
                     type:'spline'
-               },false);
-                chartHum.redraw();        
-            });
+                  },false);
+                  chartHum.redraw();        
+                 });
             
-            // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-            socket.on('HumidityUpdate', function (time, data) {
-                var series = chartHum.series[0];
-                series.addPoint([time, data]);
-            });
-            }
+                 // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+                  socket.on('HUpdate', function (id, datos) {
+                   id.addPoint(datos[0]);
+                  });
+               }
             }
         },
         rangeSelector : {
@@ -382,11 +385,10 @@
         },
         yAxis: {
             minPadding: 0.2,
-            maxPadding: 0.2,
-        title: {
-                text: 'Hum (%)',
-                margin: 10
-            }
+            maxPadding: 0.2
+        },
+        tooltip: {
+                valueSuffix: '%'
         },
         legend: {
                 enabled: true

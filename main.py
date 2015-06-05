@@ -14,7 +14,7 @@ Timeout=1
 
 #- Numero maximo de medidas que se guardan en cache antes
 #- de subir a la base de datos
-MAX_MEDIDAS=4
+MAX_MEDIDAS=6
 
 #-Tupla de tipos de sensor
 T_sensores=('T','P','L','B','C','A','H')
@@ -61,8 +61,8 @@ r_sensores=db.cargarSensores()
 print "Cache de sensores"
 print r_sensores
 
-print("\nTabla de Sensores")
-db.TablaSensores()
+#print("\nTabla de Sensores")
+#db.TablaSensores()
 
 #- Lista que guarda las medidas  para subir a la base de datos.
 #- cuando tiene MAX_MEDIDAS
@@ -111,8 +111,8 @@ while True:
 
              db.nuevaMedida(r_medidas)
              r_medidas=[]
-             print "\nMedidas"
-             db.TablaMedidas()
+             #print "\nMedidas"
+             #db.TablaMedidas()
 
 
  except KeyboardInterrupt:
