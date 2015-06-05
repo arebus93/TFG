@@ -83,7 +83,7 @@
   
     // Creo las graficas de Temperatura, Presencia,Consumo, Luminosidad,
     //Presion y Humedad.
-    var chartTemp, chartPres, chartCons, chartLuz, chartAtm, chartHum;
+    var chartTemp, chartPres, chartCons, chartLum, chartAtm, chartHum;
     
     //Usar la hora local en vez de la UTC.
       Highcharts.setOptions({
@@ -91,30 +91,29 @@
           useUTC: false
         }
       });
-
     //Grafica de Temperatura
     chartTemp = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartTemp', 
-	    events: {
+        events: {
                 load: function() {
                     
-             	  //Cuando cargo la grafica por primera vez, cago las
-           	  // medidas alamcenadas de cada sensor
-           	  socket.on('TLoad', function (id, datos) {
-               	   chartTemp.addSeries({
+                  //Cuando cargo la grafica por primera vez, cago las
+              // medidas alamcenadas de cada sensor
+              socket.on('TLoad', function (id, datos) {
+                   chartTemp.addSeries({
                     name: id,
+                    id:id,
                     data:datos,
                     type:'spline'
                    },false);
                    chartTemp.redraw();        
                   });
-
-
-            	// Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-            	socket.on('TUpdate', function (id, datos) {
-                id.addPoint(datos[0]);
-            	});
+                // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+                socket.on('TUpdate', function (id, datos) {
+                  var series=chartTemp.get(id);  
+                  series.addPoint(datos[0]);
+                });
               }
             }
         },
@@ -144,19 +143,18 @@
                 enabled: true
         },
      });
-
    //Grafica de Presencia
     chartPres = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartPres', 
             events: {
                 load: function() {
-
-          	 //Cuando cargo la grafica por primera vez, cago las
+             //Cuando cargo la grafica por primera vez, cago las
                  // medidas alamcenadas de cada sensor
                  socket.on('PLoad', function (id, datos) {
                   chartPres.addSeries({
                     name: id,
+                    id:id,
                     data:datos,
                    step: true
                   },false);
@@ -165,7 +163,8 @@
             
                 // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
                  socket.on('PUpdate', function (id, datos) {
-                  id.addPoint(datos[0]);
+                  var series=chartPres.get(id);  
+                  series.addPoint(datos[0]);
                  });
                }
             }
@@ -192,28 +191,28 @@
                 enabled: true
         },
      });
-
    //Grafica de Consumo
     chartCons = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartCons', 
             events: {
                 load: function() {
-
                 //Cuando cargo la grafica por primera vez, cago las
                 // medidas alamcenadas de cada sensor
                 socket.on('CLoad', function (id, datos) {
                  chartCons.addSeries({
                     name: id,
+                    id:id,
                     data:datos,
                     type:'spline'
                  },false);
                  chartCons.redraw();        
                 });
             
-            	// Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-           	socket.on('CUpdate', function (id, datos) {
-                 id.addPoint(datos[0]);
+                // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+                socket.on('CUpdate', function (id, datos) {
+                  var series=chartCons.get(id);  
+                  series.addPoint(datos[0]);
                 });
               }
             }
@@ -244,19 +243,18 @@
                 enabled: true
         },
      });
-
    //Grafica de Luminosidad
     chartLum = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartLum', 
             events: {
                 load: function() {
-
                  //Cuando cargo la grafica por primera vez, cago las
                  // medidas alamcenadas de cada sensor
                  socket.on('LLoad', function (id, datos) {
                   chartLum.addSeries({
                     name: id,
+                    id:id,
                     data:datos,
                     type:'spline'
                   },false);
@@ -265,7 +263,8 @@
             
                 // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
                 socket.on('LUpdate', function (id, datos) {
-		 id.addPoint(datos[0]);
+                  var series=chartLum.get(id);  
+                  series.addPoint(datos[0]);
                 });
               }
             }
@@ -295,19 +294,18 @@
                 enabled: true
         },
      });
-
   //Grafica de Presion
     chartAtm = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartAtm', 
             events: {
                 load: function() {
-
                   //Cuando cargo la grafica por primera vez, cago las
                   // medidas alamcenadas de cada sensor
                   socket.on('ALoad', function (id, datos) {
                    chartAtm.addSeries({
                     name: id,
+                    id:id,
                     data:datos,
                     type:'spline'
                   },false);
@@ -316,7 +314,8 @@
             
                  // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
                  socket.on('AUpdate', function (id, datos) {
-                  id.addPoint(datos[0]);
+                  var series=chartAtm.get(id);  
+                  series.addPoint(datos[0]);
                  });
                }
             }
@@ -346,19 +345,18 @@
                 enabled: true
         },
      });
-
   //Grafica de Humedad
     chartHum = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartHum', 
             events: {
                 load: function() {
-
                 //Cuando cargo la grafica por primera vez, cago las
                 // medidas alamcenadas de cada sensor
                  socket.on('HLoad', function (id, datos) {
                   chartHum.addSeries({
                     name: id,
+                    id:id,
                     data:datos,
                     type:'spline'
                   },false);
@@ -367,7 +365,8 @@
             
                  // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
                   socket.on('HUpdate', function (id, datos) {
-                   id.addPoint(datos[0]);
+                    var series=chartHum.get(id);  
+                    series.addPoint(datos[0]);
                   });
                }
             }
