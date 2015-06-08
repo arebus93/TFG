@@ -44,8 +44,14 @@ function handler(req, res) {
       break;
 
     case 'favicon.ico': //Carga el icono
-      res.writeHead(200, {'Content-Type': 'image/x-icon'} );
-      res.end(fs.readFile(__dirname+'/favicon.ico'));
+      fs.readFile(__dirname+'/favicon.ico', function(err, data) {
+      if (err) {
+        //Si hay error,lo sacamos por consola
+        console.log(err);
+      }
+      res.writeHead(200, {'Content-Type': 'image/x-icon'});
+      res.end(data);
+      });
       break;
 
      default: //No existe el path o no es accesible

@@ -1,7 +1,7 @@
 DOMOlabo B105
 ===================
 
-This project consist on a Node.js-based Raspberry Pi monitoring panel that allows to check the temperature, presence, light, Battery, Power Consumption, Presure, Humidity. 
+This project consist on a Node.js-based Raspberry Pi monitoring panel that allows to check the Temperature, Presence, Light, Battery, Power Consumption, Presure, Humidity. 
 
 This is a very useful web app for checking the status not only of the B105 lab but also of a complete university campus.
 
