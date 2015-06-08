@@ -7,32 +7,46 @@ var app = require('http').createServer(handler).listen(port),
   url = require('url'),
   sqlite3=require('sqlite3').verbose();
 
-var db= new sqlite3.Database('database.sqlite3');
 var connectCounter = 0;
 var timerWeb =30000; //Tiempo de refresco en ms(30s).
 var lastRead=0; //Ultimo Num_registro leido de Medidas.
-var T_sensors=['T','P','L','B','C','A','H'];
+var T_sensors=[['T','P','L','B','C','A','H'],['Temp','Pres','Lum','Bat','Cons','Atm','Hum']];
 
 //Si todo va bien al abrir el navegador, cargaremos el html adecuado.
 function handler(req, res) {
-  var path = url.parse(req.url).pathname;
+ path = url.parse(req.url).pathname;
   switch(path) {
 
-    case '/': //Carga la pagina principal de sensores.
+    case '/': //Carga la pagina principal de informacion.
       fs.readFile(__dirname+'/index.html', function(err, data) {
       if (err) {
-      //Si hay error, mandaremos un mensaje de error 500
-      console.log(err);
-      res.writeHead(500);
-      return res.end('Error loading index.html');
+        //Si hay error, mandaremos un mensaje de error 500
+        console.log(err);
+        res.writeHead(500);
+        return res.end('Error loading index.html');
       }
       res.writeHead(200);
       res.end(data);
       });
       break;
 
-    case '/sensors': //Por implementar
-     break;  
+    case '/sensors': //Carga la pagina de sensores
+      fs.readFile(__dirname+'/nodes.html', function(err, data) {
+      if (err) {
+        //Si hay error, mandaremos un mensaje de error 500
+        console.log(err);
+        res.writeHead(500);
+        return res.end('Error loading index.html');
+      }
+      res.writeHead(200);
+      res.end(data);
+      });
+      break;
+
+    case 'favicon.ico': //Carga el icono
+      res.writeHead(200, {'Content-Type': 'image/x-icon'} );
+      res.end(fs.readFile(__dirname+'/favicon.ico'));
+      break;
 
      default: //No existe el path o no es accesible
       console.log('No existe el path'+path)
@@ -42,8 +56,6 @@ function handler(req, res) {
 }
 
 //Cuando abramos el navegador estableceremos una conexión con socket.io.
-//Cada X segundos mandaremos a la gráfica un nuevo valor. 
-
 io.sockets.on('connection', function(socket) {
   var address = socket.handshake.address;
 
@@ -56,8 +68,26 @@ io.sockets.on('connection', function(socket) {
   console.log("NUMBER OF CONNECTIONS--: "+connectCounter);
  });
 
-// Precarga de los datos almacenados.
-db.all("SELECT Referencia FROM Sensores ORDER BY Referencia", function (err,refs) {
+ // Visualizacion de los datos del sistema.
+ if (typeof path != 'undefined'){
+  switch(path){
+    case '/': //Cargamos y actualizamos las graficas. 
+   info(socket);
+   break;
+
+  case '/sensors': //Cargamos y actualizamos los sensores.
+   sensores(socket);
+   break;
+  }
+ }
+});
+
+// Funcion para cargar las graficas de medidas con los ultimos valores
+//Cada timerWeb milisegundos mandaremos a la gráfica un nuevo valor.
+
+function info (socket) {
+var db= new sqlite3.Database('database.sqlite3');
+ db.all("SELECT Referencia FROM Sensores ORDER BY Referencia", function (err,refs) {
     if(err){
        console.log('exec error: ' + err);
     }else{ //cargamos los sensores
@@ -92,7 +122,7 @@ db.all("SELECT Referencia FROM Sensores ORDER BY Referencia", function (err,refs
   });
   db.close();
  },timerWeb);
-});
+}
 
 // Funcion para enviar datos del array (rows) a los sockets en funcion
 // de la referencia (r) y aplicar la funcion (Load/Update). Ademas actualiza el
@@ -108,7 +138,7 @@ function socket_selector(socket,rows,r,func) {
       {lastRead=rows[(l2-1)].Num_registro;}
   }else{
     if(func=='Load')
-     {socket.emit(T_sensors[((r%10)-1)]+func,T_sensors[((r%10)-1)]+(parseInt(r/10)),[])};
+     {socket.emit(T_sensors[0][((r%10)-1)]+func,T_sensors[0][((r%10)-1)]+(parseInt(r/10)),[])};
   }
 
   for(var j=0;j<l2;j++){
@@ -135,9 +165,6 @@ function socket_selector(socket,rows,r,func) {
         datos.push([date,lum]);
       break;
 
-      case 4: //Bateria
-      break;
-
       case 5: //Consumo
         var cons=parseFloat(rows[j].Valor)/10;
         var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
@@ -159,8 +186,52 @@ function socket_selector(socket,rows,r,func) {
       default: console.log('error referencia');
     }
   if ( func=='Update' || j==(l2-1)){
-    socket.emit(T_sensors[tipo-1]+func,T_sensors[(tipo-1)]+(parseInt(r/10)), datos);
+    socket.emit(T_sensors[0][tipo-1]+func,T_sensors[0][(tipo-1)]+(parseInt(r/10)), datos);
     datos=[];
     }
   }
+}
+
+// Funcion para cargar la tabla de sensores
+//Se podran tambien añadir y eliminar sensores.
+
+function sensores (socket) {
+ var db= new sqlite3.Database('database.sqlite3');
+  db.all("SELECT Id,Referencia, Localizacion FROM Sensores ORDER BY Referencia", function (err,refs){
+    if(err){
+       console.log('exec error: ' + err);
+    }else{ //cargamos los sensores
+      var tipos=""; //cadena con los tipos de sensores del nodo
+      var idS=0;    //Id del siguiente leido
+      var bat=5;    //Bateria valor por defecto
+      //console.log(refs);
+      for(var i=0, l1=refs.length; i<l1;i++){
+       var id=refs[i].Id;
+	if(i==l1-1)
+	 {idS=0;}
+	else
+	  {idS=refs[i+1].Id;}
+        r=(refs[i].Referencia)%10;
+         (function(r){
+           if (r==4){
+            db.all("SELECT TOP 1 Valor FROM Medidas WHERE Referencia='"+r+"' ORDER BY Fecha, Hora",function (err2,rows) {
+              if(err2) {
+              console.log('exec error: ' + err2);
+              }else {
+               bat=rows.Valor;
+              }
+            });
+          }
+          else {tipos=tipos+T_sensors[1][(r-1)]+", ";}
+         })(r);
+         if( idS!=id){ //Hemos terminado el nodo
+	  loc=refs[i].Localizacion;
+          socket.emit("SLoad",[id,tipos,loc,bat]);
+          tipos="";
+          bat=5;
+         }
+	}
+      }   
+   });
+  db.close();
 }
