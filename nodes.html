@@ -26,15 +26,14 @@
 
 <!--Tabla de Sensores-->
 
-  <div class="container">
+ <div class="container">
     
     <div class="row marketing">
       <div class="col-lg-12">
-        <div class="panel panel-primary" style="width:100% ;">
+        <div class="panel panel-primary" style="width:100%;">
           <div class="panel-heading" style=" background: #D2691E;" >Panel Informacion Sensores B105</div>
           <div class="panel-body">
-          <p id="p_hostname">Here you can see the general info of the sensors availabe,add, modify and delete sensors of the Domotics system. 
-          </p>
+          <p>Here you can see the general info of the sensors availabe,add, modify and delete sensors of the Domotics system.</p>
           </div>
         </div>
       </div>
@@ -53,19 +52,67 @@
             </tr>
         </thead>
         <tbody></tbody>
-        </table>
+       </table>
     </div>
+	
+   <form>
+        <div class="col-lg-6">
+          <div class="form-group">
+            <label for="inputId" class="col-lg-3 control-label">Id</label>
+              <div class="col-lg-9" style="padding-bottom: 15px;">
+                <input type="number" class="form-control" id="inputId" placeholder="Identif." min="1">
+              </div>
+          </div>
+          <div class="form-group">
+            <label for="inputLoc" class="col-lg-3 control-label">Localizacion</label>
+              <div class="col-lg-9" style="padding-bottom: 15px;">
+                <input type="number" class="form-control" id="inputLoc" placeholder="Localiz.">
+              </div>
+          </div>
+      </div>
+
+        <div class="col-lg-6">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="CheckTemp"> Temp
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="CheckPres"> Pres
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="CheckLum"> Lum
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="CheckBat"> Bat
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="CheckCons"> Cons
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="CheckAtm"> Atm 
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="CheckHum"> Hum 
+          </label>
+
+           <div class="form-group">
+            <div class="col-lg-offset-2 col-lg-10" style="padding-top: 15px;">
+              <button type="submit" class="btn btn-primary">Guardar</button>
+              <button type="submit" class="btn btn-default">Reset</button>
+            </div>
+          </div>
+        </div>
+  </form>
+
+ </div>    
     
-    <!-- Se creara la tabla dinamicamente con Javascript e Interfaces DOM -->
+  <!-- Se creara la tabla dinamicamente con Javascript e Interfaces DOM -->
     <script>
      // Creo un WebSocket. 
      var socket = io.connect('http://'+ location.host);
      // console.log(location.host);
-
      socket.on('SLoad', function (data) {
       //Cuerpo de la tabla
       var tablebody = document.getElementsByTagName("tbody")[0];
-
       //Creo el HTML del boton edit 
       var button1 =document.createElement('button')
       button1.className = "btn btn-default btn-md";
@@ -75,7 +122,6 @@
       button1.onclick = function(){
           //Por implementar
       }
-
       //Creo el HTML del boton delete 
       var button2 =document.createElement('button')
       button2.className = "btn btn-default btn-md";
@@ -84,10 +130,9 @@
       button2.appendChild(icon2);
       button2.onclick = function(){
          var fila = this.parentNode.parentNode.parentNode;
-         tbody.removeChild(fila);
+         tablebody.removeChild(fila);
          //socket.emit('deleteSensor')
       }
-
       // Rellenamos la tabla
         var row = document.createElement("tr");
           for(var j = 0; j<4 ; j++) {
