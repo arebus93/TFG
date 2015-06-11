@@ -11,7 +11,7 @@
   
     <!-- Importo el módulo socket.io que tengo en el proyecto -->
   <script src="/socket.io/socket.io.js"></script>
-
+  
     <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 
@@ -121,13 +121,13 @@
      // console.log(location.host);
      // Cargo la tablaSensores
 
+   $(document).ready(function(){
      var table = $('#sensorTable').DataTable();
-      socket.on('SLoad', function (data) {
+     socket.on('SLoad', function (data) {
         table.row.add(data);
         table.draw();
       });
 
-    $(document).ready(function(){
      $("#buttonSave").click(function(){
 	var id = $('#inputId').val();
 	var loc = $('#inputLoc').val();
@@ -135,9 +135,11 @@
 	$("input:checkbox:checked").each(function() {
            var tipo = $(this).val();
 	   tipos=tipos+tipo+", ";
-	   //socket.emit()
-    	});
-	table.row.add([id,tipos,loc,0]);
+	});
+	//Actulizamos la base de datos SQLITE3
+	socket.emit('Snew',[id,tipos,loc])
+	//Actualizamos la tabla HTML
+	table.row.add([id,tipos,loc,5]);
 	table.draw();        
      });
      $("#buttonReset").click(function(){
@@ -145,7 +147,8 @@
         this.reset();
        });
      });
-    });
+
+  });
   </script>
   </body>
 </html>

@@ -6,7 +6,7 @@
   "repository": "https://github.com/arebus93/TFG",
   "author": "Adrián Arévalo Aguirre",
   "dependencies": {
-   "sqlite3": "~2.2.3",
-   "socket.io": "~0.9.14"
+  "sqlite3": "~2.2.3",
+  "socket.io": "~0.9.14"
   }
 }
