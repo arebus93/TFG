@@ -44,14 +44,14 @@ function handler(req, res) {
       break;
 
     case '/favicon.ico': //Carga el icono
-     //fs.readFile(__dirname+'/favicon.ico', function(err, data) {
-      //if (err) {
-        //Si hay error,lo sacamos por consola
-        //console.log(err);
-      //}
-      //res.writeHead(200, {'Content-Type': 'image/x-icon'});
-      //res.end(data);
-      //});
+     fs.readFile(__dirname+'/favicon.ico', function(err, data) {
+      if (err) {
+       //Si hay error,lo sacamos por consola
+       console.log(err);
+      }
+      res.writeHead(200, {'Content-Type': 'image/x-icon'});
+      res.end(data);
+      });
       break;
 
      default: //No existe el path o no es accesible
@@ -232,7 +232,7 @@ function sensores (socket) {
          })(r);
          if( idS!=id){ //Hemos terminado el nodo
 	  loc=refs[i].Localizacion;
-          socket.emit("SLoad",[id,tipos,loc,bat]);
+          socket.emit('SLoad',[id,tipos,loc,bat]);
           tipos="";
           bat=5;
          }

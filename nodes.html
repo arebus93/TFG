@@ -10,21 +10,30 @@
     </title>
   
     <!-- Importo el módulo socket.io que tengo en el proyecto -->
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://code.jquery.com/jquery.js"></script>
-  
-      <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-      <!-- Optional theme -->
-<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
-<!-- Latest compiled and minified JavaScript -->
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+    <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+   <!-- DataTables -->
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js"></script>
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"</script>
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"</script>
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 
 </head>
 
 <body>
 
 <!--Tabla de Sensores-->
+ <div class="container">
 
  <div class="container">
     
@@ -38,24 +47,24 @@
         </div>
       </div>
     </div>
-
-   <!-- Creo el div donde tendré la tabla de sensores -->
-    <div class="table-responsive">
-       <table id= "sensorTable" class="table table-bordered table-hover" style="text-align:center;">
+    
+   <!--Tabla de Sensores-->
+ 
+  <div class="row-markering"> 
+    <table id= "sensorTable" class="table table-hover" style="text-align:center;">
         <thead>
             <tr>
                 <th class="text-center">Id</th>
                 <th class="text-center">Tipos</th>
                 <th class="text-center">Localizacion</th>
                 <th class="text-center">Bateria</th>
-                <th></th>
             </tr>
         </thead>
         <tbody></tbody>
        </table>
     </div>
-	
-   <form>
+
+    <form id="sensor-form">
         <div class="col-lg-6">
           <div class="form-group">
             <label for="inputId" class="col-lg-3 control-label">Id</label>
@@ -73,83 +82,70 @@
 
         <div class="col-lg-6">
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckTemp"> Temp
+            <input type="checkbox" id="CheckTemp" value="Temp">Temp
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckPres"> Pres
+            <input type="checkbox" id="CheckPres" value="Pres">Pres
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckLum"> Lum
+            <input type="checkbox" id="CheckLum" value="Lum">Lum
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckBat"> Bat
+            <input type="checkbox" id="CheckBat" value="Bat">Bat
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckCons"> Cons
+            <input type="checkbox" id="CheckCons" value="Cons">Cons
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckAtm"> Atm 
+            <input type="checkbox" id="CheckAtm" value="Atm">Atm 
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckHum"> Hum 
+            <input type="checkbox" id="CheckHum" value="Hum">Hum 
           </label>
 
            <div class="form-group">
             <div class="col-lg-offset-2 col-lg-10" style="padding-top: 15px;">
-              <button type="submit" class="btn btn-primary">Guardar</button>
-              <button type="submit" class="btn btn-default">Reset</button>
+              <button type="button" class="btn btn-primary" id= "buttonSave">Guardar</button>
+              <button type="button" class="btn btn-default" id="buttonReset">Reset</button>
             </div>
           </div>
         </div>
-  </form>
-
- </div>    
+    </form>
+  </div>    
     
   <!-- Se creara la tabla dinamicamente con Javascript e Interfaces DOM -->
-    <script>
-     // Creo un WebSocket. 
+  <script>
+
+    // Creo un WebSocket.
      var socket = io.connect('http://'+ location.host);
      // console.log(location.host);
-     socket.on('SLoad', function (data) {
-      //Cuerpo de la tabla
-      var tablebody = document.getElementsByTagName("tbody")[0];
-      //Creo el HTML del boton edit 
-      var button1 =document.createElement('button')
-      button1.className = "btn btn-default btn-md";
-      var icon1 = document.createElement("span");
-      icon1.className ="glyphicon glyphicon-pencil";
-      button1.appendChild(icon1);
-      button1.onclick = function(){
-          //Por implementar
-      }
-      //Creo el HTML del boton delete 
-      var button2 =document.createElement('button')
-      button2.className = "btn btn-default btn-md";
-      var icon2 = document.createElement("span");
-      icon2.className ="glyphicon glyphicon-trash";
-      button2.appendChild(icon2);
-      button2.onclick = function(){
-         var fila = this.parentNode.parentNode.parentNode;
-         tablebody.removeChild(fila);
-         //socket.emit('deleteSensor')
-      }
-      // Rellenamos la tabla
-        var row = document.createElement("tr");
-          for(var j = 0; j<4 ; j++) {
-          var cell = document.createElement("td");
-          var currenttext = document.createTextNode(data[j]);
-          cell.appendChild(currenttext);
-          row.appendChild(cell);
-          }
-          //Inserto los botones delete and edit
-          var campo4 = document.createElement("span");
-            campo4.appendChild(button1);
-            campo4.appendChild(button2);
-          var cell =document.createElement("td");
-	  cell.appendChild(campo4);
-          row.appendChild(cell);  
-         tablebody.appendChild(row);
+     // Cargo la tablaSensores
+
+     var table = $('#sensorTable').DataTable();
+      socket.on('SLoad', function (data) {
+        table.row.add(data);
+        table.draw();
       });
-    </script>
+
+    $(document).ready(function(){
+     $("#buttonSave").click(function(){
+	var id = $('#inputId').val();
+	var loc = $('#inputLoc').val();
+	tipos="";
+	$("input:checkbox:checked").each(function() {
+           var tipo = $(this).val();
+	   tipos=tipos+tipo+", ";
+	   //socket.emit()
+    	});
+	table.row.add([id,tipos,loc,0]);
+	table.draw();        
+     });
+     $("#buttonReset").click(function(){
+       $('#sensor-form').each (function(){
+        this.reset();
+       });
+     });
+    });
+  </script>
   </body>
 </html>
