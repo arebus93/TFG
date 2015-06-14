@@ -12,21 +12,18 @@
     <!-- Importo el módulo socket.io que tengo en el proyecto -->
   <script src="/socket.io/socket.io.js"></script>
   
-    <!-- jQuery -->
-  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <!-- jQuery y DataTables -->
+  <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" language="javascript" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+   
+   <!-- CSS -->
+  <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/tabletools/2.2.4/css/dataTables.tableTools.css">
+  <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
 
-   <!-- DataTables -->
-  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.js"></script>
-  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"</script>
-  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"</script>
-
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-  <!-- Optional theme -->
-  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
-
-  <!-- Latest compiled and minified JavaScript -->
-  <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <!-- Latest compiled and minified JavaScript --> 
+  <script type="text/javascript" language="javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+  <script type="text/javascript" language="javascript" src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
 
 </head>
 
@@ -50,8 +47,17 @@
     
    <!--Tabla de Sensores-->
  
-  <div class="row-markering"> 
-    <table id= "sensorTable" class="table table-hover" style="text-align:center;">
+  <div class="row-markering">
+   <div class="col-lg-12" style="padding-bottom: 15px;">
+    <button id="buttonDel" class="btn btn-sm btn-danger">
+	<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Eliminar
+    </button>
+   <label class="checkbox-inline">
+     <input type="checkbox" id="CheckMedidas"> Eliminar medidas
+    </label>
+   </div>
+
+   <table id= "sensorTable" class="table table-hover" style="text-align:center;" data-click-to-select="true">
         <thead>
             <tr>
                 <th class="text-center">Id</th>
@@ -63,7 +69,7 @@
         <tbody></tbody>
        </table>
     </div>
-
+   
     <form id="sensor-form">
         <div class="col-lg-6">
           <div class="form-group">
@@ -122,12 +128,42 @@
      // Cargo la tablaSensores
 
    $(document).ready(function(){
-     var table = $('#sensorTable').DataTable();
+     var table = $('#sensorTable').DataTable( {
+               "sRowSelected": "single"
+                 });
+    
+     //Carga de la Tabla
      socket.on('SLoad', function (data) {
         table.row.add(data);
-        table.draw();
+        table.draw(false);
       });
 
+    //Seleccion de filas
+    $('#sensorTable tbody').on( 'click', 'tr', function () {
+        if ( $(this).hasClass('selected') ) {
+            $(this).removeClass('selected');
+	    $(this).removeClass('warning');
+        }
+        else {
+            table.$('tr.selected').removeClass('warning');
+            table.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+            $(this).addClass('warning');
+        }
+    });
+
+     //Boton de borrado filas tabla
+     $('#buttonDel').click( function () {
+        var rowData = table.row('.warning').data();
+	var flag = $('#CheckMedidas').is(':checked');
+	//Borramos el sensor y/o las medidas del servidor
+	socket.emit('SDelete',rowData[0],flag);
+	//Lo borramos de la tabla
+        table.row('.warning').remove().draw( false );
+	//draw false para quedarse en la misma pagina
+     });
+
+     //Boton de guardado de formulario
      $("#buttonSave").click(function(){
 	var id = $('#inputId').val();
 	var loc = $('#inputLoc').val();
@@ -136,12 +172,14 @@
            var tipo = $(this).val();
 	   tipos=tipos+tipo+", ";
 	});
-	//Actulizamos la base de datos SQLITE3
-	socket.emit('Snew',[id,tipos,loc])
-	//Actualizamos la tabla HTML
+	//Lo guardamos en el servidor
+	socket.emit('SNew',[id,tipos,loc]);
+	//Lo guardamos en la tabla
 	table.row.add([id,tipos,loc,5]);
 	table.draw();        
      });
+
+     //Boton de reset de formulario
      $("#buttonReset").click(function(){
        $('#sensor-form').each (function(){
         this.reset();

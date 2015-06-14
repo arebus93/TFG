@@ -12,15 +12,15 @@ def crearTablas():
 
 	sql = """CREATE TABLE IF NOT EXISTS Sensores(
 		Num_registro INTEGER PRIMARY KEY,
-		Id INTEGER NOT NULL CHECK (Id>0),
-		Referencia INTEGER NOT NULL UNIQUE CHECK (Referencia>0),
+		Id INTEGER NOT NULL,
+		Referencia INTEGER NOT NULL UNIQUE,
 		Tipo VARCHAR(40) NOT NULL,
-		Localizacion INTEGER NOT NULL CHECK (Localizacion>0))
+		Localizacion INTEGER NOT NULL)
 		"""
 	sql1 = """CREATE TABLE IF NOT EXISTS Medidas(
 		Num_registro INTEGER PRIMARY KEY,
 		Referencia INTEGER NOT NULL,
-		Valor INTEGER NOT NULL CHECK (Valor > 0),
+		Valor INTEGER NOT NULL,
 		Fecha DATE NOT NULL,
 		Hora TIME NOT NULL)
 		"""

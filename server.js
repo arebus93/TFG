@@ -63,7 +63,8 @@ io.sockets.on('connection', function(socket) {
   connectCounter++;
   console.log("NUMBER OF CONNECTIONS++: "+connectCounter);
 
- socket.on('Snew', function(data){
+ //Añadimos un sensor a la base de datos
+ socket.on('SNew', function(data){
   var db = new sqlite3.Database('database.sqlite3');
   db.serialize(function () {
    var stmt = db.prepare("INSERT INTO Sensores(Id, Referencia, Tipo, Localizacion) VALUES(?,?,?,?)");
@@ -79,8 +80,29 @@ io.sockets.on('connection', function(socket) {
    stmt.finalize();
   });
   db.close();
-}); 
+ }); 
+ 
+ //Eliminamos un sensor
+ socket.on('SDelete', function(id, flag){
+  var db = new sqlite3.Database('database.sqlite3');
+  db.run("DELETE FROM Sensores WHERE Id=?",id,function(err){
+   if(err) {
+     console.log('exec error: ' + err);
+   }
+  });
+  if(flag){
+   r1=id*10;
+   r2=r1+10;
+   console.log(r1);
+   console.log(r2);
+   db.run("DELETE FROM Medidas WHERE Referencia > ? AND Referencia < ? ", r1 , r2 ,function(err2){
+    if(err2) {console.log('exec error: ' + err2);}
+   });
+  }
+  db.close();
+ });
 
+ //Eliminamos la conexion
  socket.on('disconnect', function() {
   connectCounter--;
   console.log("NUMBER OF CONNECTIONS--: "+connectCounter);
