@@ -3,6 +3,8 @@
 import database as db
 import serie as ser
 import json
+import os.path as path
+import pyinotify
 
 #-----------------------------------------
 #  Inicializacion
@@ -27,9 +29,6 @@ ser.initSerial(Puerto,Vel,Timeout)
 db.crearTablas()
 
 #- Precarga de sensores
-#- A continuacion actualizamos la cache de sensores
-#- con cargasensores()
-
 precarga_sensores =[ (1,11,'Temperatura', 1),
                      (1,12,'Presencia', 1),
                      (1,13,'Luminosidad', 1),
@@ -57,43 +56,95 @@ precarga_sensores =[ (1,11,'Temperatura', 1),
 		     (5,51,'Temperatura',5)]
 
 db.nuevoSensor(precarga_sensores)
-r_sensores=db.cargarSensores()
-print "Cache de sensores"
-print r_sensores
 
-#print("\nTabla de Sensores")
-#db.TablaSensores()
+#- A continuacion actualizamos la cache de sensores
+#- con cargasensores()
+r_sensores=db.cargarSensores()
 
 #- Lista que guarda las medidas  para subir a la base de datos.
 #- cuando tiene MAX_MEDIDAS
 r_medidas=[]
 
+#-Configuracion del notifier del fichero exchange.txt
+change_flag=0
+FWATCH= path.abspath('exchange.txt')
+wm = pyinotify.WatchManager()
+FEVENTS = pyinotify.IN_CLOSE_WRITE
+
+#-Manejador de Eventos declarados anteriormente
+class EventHandler(pyinotify.ProcessEvent):
+  def process_IN_CLOSE_WRITE (self, event):
+   global change_flag
+   change_flag=1
+   
+notifier = pyinotify.ThreadedNotifier(wm, EventHandler())
+notifier.start()
+wdd = wm.add_watch(FWATCH,FEVENTS)
+
 #-------------------------------------------
 # Funciones utilizadas
 #------------------------------------------
 
-def guardarMedida(cadena):
+#-Leemos la UART para tomar nuevas medidas
+def nuevasMedidas():
  try:
-       # print cadena
-	parsed_json = json.loads(cadena)
-	Id=int(parsed_json['I'])
-
+    cadena=ser.leerSerial()
+    if (len(cadena)):
+     #print cadena
+     parsed_json = json.loads(cadena)
+     Id=int(parsed_json['I'])
   #-Buscamos en la cache r_sensores si existe
   #-y los sensores que tiene declarados
-  	if r_sensores.has_key(Id):
-   		rows=r_sensores[Id] 
-   		for i in rows:
-			x=(i%10)-1
-			tS=T_sensores[x] #Tipo
-			m=int(parsed_json[tS]) #Medida
-    			t=ser.time.strftime('%H:%M:%S') #Time
-    			d=ser.time.strftime('%Y/%m/%d') #Date
-  			r_medidas.append([i,m,d,t])    			
-  	else:
-		print "Sensor no esta en la base de datos"
+     if r_sensores.has_key(Id):
+      rows=r_sensores[Id] 
+      for i in rows:
+          x=(i%10)-1
+          tS=T_sensores[x] #Tipo
+	  m=int(parsed_json[tS]) #Medida
+    	  t=ser.time.strftime('%H:%M:%S') #Time
+    	  d=ser.time.strftime('%Y/%m/%d') #Date
+  	  r_medidas.append([i,m,d,t])    			
+     else:
+	  print "Sensor no esta en la base de datos"
  
  except ValueError, e:
 	print "Error al parsear el JSON"	
+
+#-Aplicamos los cambios efectuados en el servidorWeb
+def cambiosServidor():
+ try:
+   #Leemos el fichero
+   f = open("exchange.txt","r")
+   lines = f.readlines()
+   f.close()
+   #Vaciamos el fichero
+   f = open("exchange.txt","w")
+   f.close()
+   global change_flag
+   change_flag = 0
+   #Aplicamos los cambios
+   for line in lines:
+    datos=line.split(',')
+    print datos
+    if(datos[0]== "DELETE"):
+     db.borrarSensor(int(datos[1]),datos[2])
+    elif(datos[0]== "INSERT"):
+     id=datos[1]
+     loc=datos[2]
+     s=[] 
+     i=3
+     l1=len(datos)-1
+     while i<l1:
+      s.append([id,datos[i],datos[i+1],loc])
+      i=i+2
+     db.nuevoSensor(s)
+    else:
+     print"Opcion no contemplada"
+   global r_sensores 
+   r_sensores=db.cargarSensores()
+ 
+ except IOError:
+  print "Error al abrir el archivo"
 
 #------------------------------------------
 #   Programa Principal
@@ -101,24 +152,23 @@ def guardarMedida(cadena):
 while True:
  #ser.comandosAT() #Mandar comandos AT
  try:
-
-  cadena=ser.leerSerial()
-
-  if (len(cadena)):
-       guardarMedida(cadena)
-
-       if (len(r_medidas)>=MAX_MEDIDAS):
-
-             db.nuevaMedida(r_medidas)
-             r_medidas=[]
-             #print "\nMedidas"
-             #db.TablaMedidas()
-
-
+   nuevasMedidas() #Tomar medidas de la UART
+   #Subir un conjunto de medidas
+   if (len(r_medidas)>=MAX_MEDIDAS):
+      db.nuevaMedida(r_medidas)
+      r_medidas=[]
+      #db.TablaMedidas() 
+   
+   #Atendemos a los cambios del servidorWeb
+   if(change_flag):
+    cambiosServidor() 
+  
  except KeyboardInterrupt:
+  #- Dejamos de observar el fichero exchange.txt
+  wm.rm_watch(wdd.values())
+  notifier.stop()
   #- Cerramos el puerto serie y acabamos el programa
   ser.closeSerial(Puerto)
- 	
 
 
 

@@ -11,9 +11,8 @@ def crearTablas():
 	cursor = bd.cursor()
 
 	sql = """CREATE TABLE IF NOT EXISTS Sensores(
-		Num_registro INTEGER PRIMARY KEY,
 		Id INTEGER NOT NULL,
-		Referencia INTEGER NOT NULL UNIQUE,
+		Referencia INTEGER PRIMARY KEY,
 		Tipo VARCHAR(40) NOT NULL,
 		Localizacion INTEGER NOT NULL)
 		"""
@@ -45,14 +44,14 @@ def crearTablas():
 #- Funciones Sensores
 #-------------------------------------------------------
 
-#--Funcion para crear un sensor nuevo
+#--Funcion para crear nuevos sensores
 
 def nuevoSensor(r_sensores):
 
 	bd = sqlite3.connect('database.sqlite3')
 	cursor = bd.cursor()
 
-	sql = 'INSERT INTO Sensores(Id, Referencia, Tipo, Localizacion) VALUES(?,?,?,?)'
+	sql = 'INSERT INTO Sensores VALUES(?,?,?,?)'
 
         try:
                 cursor.executemany(sql,r_sensores)
@@ -80,7 +79,7 @@ def cargarSensores():
 		d={}
 		for x,y in rows:
 		 d.setdefault(x,[]).append(y)
-		
+		print d
 		return d
 
 	except sqlite3.Error, e:
@@ -101,7 +100,7 @@ def TablaSensores():
 		cursor.execute(sql)
 		rows=cursor.fetchall()
 		for row in rows:
-			 print "%d %d %d %s %d " % (row[0], row[1], row[2],row[3], row[4])
+			 print "%d %d %s %d " % (row[0], row[1], row[2],row[3])
 			 
         except sqlite3.Error, e:
 		print "Error %s:" %e.args[0]
@@ -109,20 +108,22 @@ def TablaSensores():
 	bd.close()
 
 #--Funcion para borrar sensores
-#--Borra el sensor de la tabla de sensores y todas las medidas asociadas
+#--Borra el sensor de la tabla de sensores y/o todas las medidas asociadas
+#- en funcion de flag
 
-def borrarSensor(ref):
+def borrarSensor(id,flag):
 
 	bd = sqlite3.connect('database.sqlite3')
 	cursor = bd.cursor()
-        refer=(ref,)
-	
-	sql = "DELETE FROM Sensores WHERE Referencia=?"
-	sql1 = "DELETE FROM Medidas WHERE Referencia=?" 
-	
+        ident=(id,)
+        sql =  "DELETE FROM Sensores WHERE Id=?"
+	if (flag):
+	 refs=(id*10,id*10+11)
+	 sql1 = "DELETE FROM Medidas WHERE Referencia > ? AND Referencia < ?" 
 	try:
-		cursor.execute(sql,refer)
-		cursor.execute(sql1,refer)
+		cursor.execute(sql,ident)
+		if(flag):
+		  cursor.execute(sql1,refs)
 		bd.commit()
 
         except sqlite3.Error, e:
@@ -205,7 +206,7 @@ def TablaMedidas():
 		cursor.execute(sql)
 		rows=cursor.fetchall()
 		for row in rows:
-			 print "%d %d %d %s %s " % (row[0], row[1], row[2],row[3],row[4])
+		  print "%d %d %d %s %s " % (row[0], row[1], row[2],row[3],row[4])
 
         except sqlite3.Error, e:
 		print "Error %s:" %e.args[0]

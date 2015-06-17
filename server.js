@@ -65,41 +65,31 @@ io.sockets.on('connection', function(socket) {
 
  //Añadimos un sensor a la base de datos
  socket.on('SNew', function(data){
-  var db = new sqlite3.Database('database.sqlite3');
-  db.serialize(function () {
-   var stmt = db.prepare("INSERT INTO Sensores(Id, Referencia, Tipo, Localizacion) VALUES(?,?,?,?)");
    var id=data[0];
    var tipos=data[1].split(", ");
    var loc=data[2];
+   var datos=[];
+
    for(var i=0,l3=tipos.length-1;i<l3;i++){
     var t=(T_sensors[1].indexOf(tipos[i]));
     var tipo=T_sensors[2][t];
     var ref=id*10+(t+1);
-    stmt.run(id,ref,tipo,loc);
+    datos.push([ref,tipo]);
    }
-   stmt.finalize();
-  });
-  db.close();
+   //Lo escribimos en el fichero exchange.txt
+   var linea="INSERT,"+id+","+loc+","+datos+",\n";
+   fs.appendFile('exchange.txt',linea,function(err){
+    if(err){console.log('exec error: ' + err);}
+   });
  }); 
  
  //Eliminamos un sensor
  socket.on('SDelete', function(id, flag){
-  var db = new sqlite3.Database('database.sqlite3');
-  db.run("DELETE FROM Sensores WHERE Id=?",id,function(err){
-   if(err) {
-     console.log('exec error: ' + err);
-   }
-  });
-  if(flag){
-   r1=id*10;
-   r2=r1+10;
-   console.log(r1);
-   console.log(r2);
-   db.run("DELETE FROM Medidas WHERE Referencia > ? AND Referencia < ? ", r1 , r2 ,function(err2){
-    if(err2) {console.log('exec error: ' + err2);}
+  //Lo escribimos en el fichero exchange.txt
+  var linea="DELETE,"+id+","+flag+",\n"  
+  fs.appendFile('exchange.txt',linea,function(err){
+   if(err){console.log('exec error: ' + err);}
    });
-  }
-  db.close();
  });
 
  //Eliminamos la conexion
@@ -122,8 +112,8 @@ io.sockets.on('connection', function(socket) {
 
 // Funcion para cargar las graficas de medidas con los ultimos valores
 //Cada timerWeb milisegundos mandaremos a la gráfica un nuevo valor.
-function info (socket) {
- var db = new sqlite3.Database('database.sqlite3');
+function info(socket) {
+ var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
  db.all("SELECT Referencia FROM Sensores ORDER BY Referencia", function (err,refs) {
     if(err){
        console.log('exec error: ' + err);
@@ -148,7 +138,7 @@ function info (socket) {
 
  //Actualizacion de datos en la pagina Web
  setInterval(function(){
- var db= new sqlite3.Database('database.sqlite3');
+ var db= new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
   db.all("SELECT Num_registro, Referencia, Valor, Fecha, Hora FROM Medidas WHERE Num_registro>'" + lastRead + "'" , function ( err2,rows) {
     if(err2) {
       console.log('exec error: ' + err2);
@@ -221,10 +211,9 @@ function socket_selector(socket,rows,r,func) {
 }
 
 // Funcion para cargar la tabla de sensores
-//Se podran tambien añadir y eliminar sensores.
 
-function sensores (socket) {
-  var db= new sqlite3.Database('database.sqlite3');
+function sensores(socket) {
+  var db= new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
   var tipos=""; //cadena con los tipos de sensores del nodo
   var idS=0; //Id del siguiente leido
   var bat=5; //Bateria valor por defecto
