@@ -29,8 +29,7 @@
 
 <body>
 
-<div class="container">
- <div class="container">
+<div class="container
 
   <!--Pannel Heading-->
     <div class="row marketing">
@@ -44,6 +43,7 @@
 	   <div class="col-lg-6">
 	    <div class="btn-group pull-right">
              <a href="/" class="btn btn-primary btn-sm">Medidas</a>
+             <a class="btn btn-info btn-sm">Reset AP</a>
 	    </div>
            </div>
           </div>
@@ -53,15 +53,29 @@
     
    <!--Tabla de Sensores-->
   <div class="row-markering">
-   <div class="col-lg-12" style="padding-bottom: 15px;">
-    <button id="buttonDel" class="btn btn-sm btn-danger">
-	<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Eliminar
+   <div class="col-lg-4" style="padding-bottom: 15px;">
+   <div class="btn-group" role="group">
+    <button type="button" id="buttonRes" class="btn btn-info">
+     <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>Reset ED
     </button>
-   <label class="checkbox-inline">
+    <button type="button" id="ButtonTimer" class="btn btn-warning">
+     <span class="glyphicon glyphicon-time" aria-hidden="true"></span>Set Timer
+    </button>
+    <button type="button" id="buttonDel" class="btn btn-danger">
+      <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Eliminar
+    </button>
+   </div>
+   </div>
+   <div class="col-lg-8" style="padding-bottom: 15px;">
+    <label class="checkbox-inline">
      <input type="checkbox" id="CheckMedidas"> Eliminar medidas
+     <input type="number" id="inputTsleep" class="form-control" placeholder="Tsleep">
+     <input type="number" id="inputWake" class="form-control" placeholder="TWake">
     </label>
    </div>
+  </div>
 
+  <div class="row-markering">
    <table id= "sensorTable" class="table table-hover" style="text-align:center;" data-click-to-select="true">
         <thead>
             <tr>
@@ -73,7 +87,6 @@
         </thead>
         <tbody></tbody>
        </table>
-    </div>
    
     <form id="sensor-form">
         <div class="col-lg-6">
