@@ -15,8 +15,9 @@
     <!-- jQuery y DataTables -->
   <script type="text/javascript" language="javascript" src="//code.jquery.com/jquery-1.11.1.min.js"></script>
   <script type="text/javascript" language="javascript" src="//cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
-   
-   <!-- CSS -->
+  <script type="text/javascript" language="javascript" src="//cdn.datatables.net/tabletools/2.2.4/js/dataTables.tableTools.min.js"></script>
+  
+  <!-- CSS -->
   <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/tabletools/2.2.4/css/dataTables.tableTools.css">
   <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
@@ -150,11 +151,13 @@
 
    $(document).ready(function(){
      var table = $('#sensorTable').DataTable( {
-               "sRowSelected": "single",
-		"oTableTools": {
-                  "sSwfPath": "swf/copy_csv_xls_pdf.swf",
-                 });
-    
+         "sRowSelected": "single",
+         "sDom": 'T<"clear">lfrtip',
+         "oTableTools": {
+	    "sSwfPath": "./swf/copy_csv_xls_pdf.swf"
+         }
+       });
+     
      //Carga de la Tabla
      socket.on('SLoad', function (data) {
         table.row.add(data);

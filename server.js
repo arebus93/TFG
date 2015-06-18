@@ -111,7 +111,7 @@ io.sockets.on('connection', function(socket) {
    });
  });
 
- socket.on('STimer', function (id_red,TSleep,TWake);
+ socket.on('STimer', function (id_red,TSleep,TWake){
   //Lo escribimos en el fichero exchange.txt
   var linea="SET,"+id_red+","+TSleep+","+TWake+",\n"  
   fs.appendFile('exchange.txt',linea,function(err){
