@@ -29,13 +29,13 @@
 
 <body>
 
-<div class="container
+<div class="container">
 
   <!--Pannel Heading-->
     <div class="row marketing">
       <div class="col-lg-12">
         <div class="panel panel-primary" style="width:100%;">
-          <div class="panel-heading"" >Panel Informacion Sensores B105</div>
+          <div class="panel-heading" >Panel Informacion Sensores B105</div>
           <div class="panel-body">
 	   <div class="col-lg-6">
             <p>Here you can see the general info of the sensors availabe,add, modify and delete sensors of the Domotics system.</p>
@@ -43,7 +43,9 @@
 	   <div class="col-lg-6">
 	    <div class="btn-group pull-right">
              <a href="/" class="btn btn-primary btn-sm">Medidas</a>
-             <a class="btn btn-info btn-sm">Reset AP</a>
+             <button type="button" id="buttonResAP" class="btn btn-info btn-sm ">
+              <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>Reset AP
+             </button>
 	    </div>
            </div>
           </div>
@@ -55,7 +57,7 @@
   <div class="row-markering">
    <div class="col-lg-4" style="padding-bottom: 15px;">
    <div class="btn-group" role="group">
-    <button type="button" id="buttonRes" class="btn btn-info">
+    <button type="button" id="buttonResED" class="btn btn-info">
      <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>Reset ED
     </button>
     <button type="button" id="ButtonTimer" class="btn btn-warning">
@@ -67,11 +69,11 @@
    </div>
    </div>
    <div class="col-lg-8" style="padding-bottom: 15px;">
-    <label class="checkbox-inline">
+    <div class="form-inline">
      <input type="checkbox" id="CheckMedidas"> Eliminar medidas
      <input type="number" id="inputTsleep" class="form-control" placeholder="Tsleep">
-     <input type="number" id="inputWake" class="form-control" placeholder="TWake">
-    </label>
+     <input type="number" id="inputTWake" class="form-control" placeholder="TWake">
+    </div>
    </div>
   </div>
 
@@ -79,10 +81,11 @@
    <table id= "sensorTable" class="table table-hover" style="text-align:center;" data-click-to-select="true">
         <thead>
             <tr>
-                <th class="text-center">Id</th>
+                <th class="text-center">Id_Nodo</th>
                 <th class="text-center">Tipos</th>
                 <th class="text-center">Localizacion</th>
                 <th class="text-center">Bateria</th>
+                <th class="text-center">Id_red</th>
             </tr>
         </thead>
         <tbody></tbody>
@@ -91,7 +94,7 @@
     <form id="sensor-form">
         <div class="col-lg-6">
           <div class="form-group">
-            <label for="inputId" class="col-lg-3 control-label">Id</label>
+            <label for="inputId" class="col-lg-3 control-label">Id_Nodo</label>
               <div class="col-lg-9" style="padding-bottom: 15px;">
                 <input type="number" class="form-control" id="inputId" placeholder="Identif." min="1">
               </div>
@@ -147,7 +150,9 @@
 
    $(document).ready(function(){
      var table = $('#sensorTable').DataTable( {
-               "sRowSelected": "single"
+               "sRowSelected": "single",
+		"oTableTools": {
+                  "sSwfPath": "swf/copy_csv_xls_pdf.swf",
                  });
     
      //Carga de la Tabla
@@ -160,7 +165,7 @@
     $('#sensorTable tbody').on( 'click', 'tr', function () {
         if ( $(this).hasClass('selected') ) {
             $(this).removeClass('selected');
-	    $(this).removeClass('warning');
+	          $(this).removeClass('warning');
         }
         else {
             table.$('tr.selected').removeClass('warning');
@@ -170,31 +175,54 @@
         }
     });
 
+    //Boton de reset AP
+     $('#buttonResAP').click( function () {
+        socket.emit('ResetAP');
+       });
+
      //Boton de borrado filas tabla
      $('#buttonDel').click( function () {
         var rowData = table.row('.warning').data();
-	var flag = $('#CheckMedidas').is(':checked');
-	//Borramos el sensor y/o las medidas del servidor
-	socket.emit('SDelete',rowData[0],flag);
-	//Lo borramos de la tabla
+	      var flag = $('#CheckMedidas').is(':checked');
+	      //Borramos el sensor y/o las medidas del servidor
+	      socket.emit('SDelete',rowData[0],flag);
+	      //Lo borramos de la tabla
         table.row('.warning').remove().draw( false );
-	//draw false para quedarse en la misma pagina
+	      //draw false para quedarse en la misma pagina
      });
+
+     //Boton de reset ED
+     $('#buttonResED').click( function () {
+        var rowData = table.row('.warning').data();
+        socket.emit('SReset',rowData[4]);
+        table.row('.warning').removeClass('selected');
+        table.row('.warning').removeClass('warning');
+      });
+
+     //Boton set TimerWeakup y TimerSleep
+     $('#ButtonTimer').click( function () {
+        var rowData = table.row('.warning').data();
+        var Tsleep =  $('#inputTsleep').val();
+        var TWake = $('#inputTWake').val();
+        socket.emit('STimer',rowData[4],Tsleep,TWake);
+        table.row('.warning').removeClass('selected');
+        table.row('.warning').removeClass('warning');
+      });
 
      //Boton de guardado de formulario
      $("#buttonSave").click(function(){
-	var id = $('#inputId').val();
-	var loc = $('#inputLoc').val();
-	tipos="";
-	$("input:checkbox:checked").each(function() {
+      	var id_nodo = $('#inputId').val();
+      	var loc = $('#inputLoc').val();
+      	tipos="";
+      	$("input:checkbox:checked").each(function() {
            var tipo = $(this).val();
-	   tipos=tipos+tipo+", ";
-	});
-	//Lo guardamos en el servidor
-	socket.emit('SNew',[id,tipos,loc]);
-	//Lo guardamos en la tabla
-	table.row.add([id,tipos,loc,5]);
-	table.draw();        
+      	   tipos=tipos+tipo+", ";
+     	  });
+      	//Lo guardamos en el servidor
+      	socket.emit('SNew',[id_nodo,tipos,loc,0]);
+      	//Lo guardamos en la tabla
+      	table.row.add([id_nodo,tipos,loc,0,-1]);
+      	table.draw();        
      });
 
      //Boton de reset de formulario
@@ -208,3 +236,4 @@
   </script>
   </body>
 </html>
+

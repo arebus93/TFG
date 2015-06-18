@@ -4,17 +4,15 @@ import serial
 import RPi.GPIO as GPIO
 import time
 import sys 
-#--Funcion para leer el puerto serie
 
+#--Funcion para leer el puerto serie
 def leerSerial():
  if(s.inWaiting()):
   return s.readline()
  else:
   return ""
 
-
 #--Configuracion del modulo HC-11 con comandos AT
-
 def comandosAT():
  GPIO.output(17,GPIO.LOW)
  time.sleep(0.7)
@@ -29,7 +27,6 @@ def comandosAT():
  #print s.readline()
 
 #--Funcion para inicializar el puerto serie y los GPIOs necesarios
-
 def initSerial(puerto,vel,timer):
 
  #-- Definicion de GPIOs y valores por defecto
@@ -55,7 +52,6 @@ def initSerial(puerto,vel,timer):
  print "Timeout: %s\n" %(timer) #Timeout 
  
 #-- Funcion para cerrar el puerto serie
-
 def closeSerial(puerto):
  try:
   s.close() 
@@ -66,3 +62,4 @@ def closeSerial(puerto):
 
  print "Puerto: %s cerrado" %(puerto)
  sys.exit(0)
+
