@@ -21,10 +21,12 @@
   <link rel="stylesheet" type="text/css" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/tabletools/2.2.4/css/dataTables.tableTools.css">
   <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.css">
+  <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.4.5/css/bootstrapValidator.min.css"/>
 
   <!-- Latest compiled and minified JavaScript --> 
   <script type="text/javascript" language="javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
   <script type="text/javascript" language="javascript" src="//cdn.datatables.net/plug-ins/1.10.7/integration/bootstrap/3/dataTables.bootstrap.js"></script>
+  <script type="text/javascript" language="javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery.bootstrapvalidator/0.4.5/js/bootstrapValidator.min.js"></script>
 
 </head>
 
@@ -94,50 +96,47 @@
    
     <form id="sensor-form">
         <div class="col-lg-6">
-          <div class="form-group">
-            <label for="inputId" class="col-lg-3 control-label">Id_Nodo</label>
-              <div class="col-lg-9" style="padding-bottom: 15px;">
-                <input type="number" class="form-control" id="inputId" placeholder="Identif." min="1">
-              </div>
-          </div>
-          <div class="form-group">
-            <label for="inputLoc" class="col-lg-3 control-label">Localizacion</label>
-              <div class="col-lg-9" style="padding-bottom: 15px;">
-                <input type="number" class="form-control" id="inputLoc" placeholder="Localiz.">
-              </div>
-          </div>
-      </div>
-
-        <div class="col-lg-6">
+         <div class="form-group">
+           <label for="inputId" class="col-lg-3 control-label">Id_Nodo</label>
+             <input type="number" class="form-control" id="inputId" name="iId" placeholder="Identif.">
+             <span class="help-block" id="idMessage"></span>
+         </div>
+         <div class="form-group">
+	   <label for="inputLoc" class="col-lg-3 control-label">Localizacion</label>
+             <input type="number" class="form-control" id="inputLoc" name="iLoc" placeholder="Localiz.">
+	     <span class="help-block" id="locMessage"></span> 
+      	 </div>
+       </div>
+       <div class="col-lg-6">
+        <div class="form-group">
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckTemp" value="Temp">Temp
+            <input type="checkbox" id="CheckTemp" name="checkT" value="Temp">Temp
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckPres" value="Pres">Pres
+            <input type="checkbox" id="CheckPres" name="checkT"  value="Pres">Pres
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckLum" value="Lum">Lum
+            <input type="checkbox" id="CheckLum" name="checkT" value="Lum">Lum
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckBat" value="Bat">Bat
+            <input type="checkbox" id="CheckBat" name="checkT" value="Bat">Bat
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckCons" value="Cons">Cons
+            <input type="checkbox" id="CheckCons" name="checkT" value="Cons">Cons
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckAtm" value="Atm">Atm 
+            <input type="checkbox" id="CheckAtm" name="checkT" value="Atm">Atm 
           </label>
           <label class="checkbox-inline">
-            <input type="checkbox" id="CheckHum" value="Hum">Hum 
+            <input type="checkbox" id="CheckHum" name="checkT" value="Hum">Hum 
           </label>
-
-           <div class="form-group">
-            <div class="col-lg-offset-2 col-lg-10" style="padding-top: 15px;">
+          <span class="help-block" id="checkMessage"></span>
+        </div>
+          <div class="col-lg-offset-2 col-lg-10" style="padding-top: 15px;">
               <button type="button" class="btn btn-primary" id= "buttonSave">Guardar</button>
               <button type="button" class="btn btn-default" id="buttonReset">Reset</button>
             </div>
-          </div>
-        </div>
+         </div>
     </form>
   </div>    
     
@@ -147,17 +146,60 @@
     // Creo un WebSocket.
      var socket = io.connect('http://'+ location.host);
      // console.log(location.host);
-     // Cargo la tablaSensores
 
+   // Cargo la tablaSensores
    $(document).ready(function(){
      var table = $('#sensorTable').DataTable( {
          "sRowSelected": "single",
-         "sDom": 'T<"clear">lfrtip',
+	 "sDom": 'T<"clear">lfrtip',
          "oTableTools": {
-	    "sSwfPath": "./swf/copy_csv_xls_pdf.swf"
+	    "aButtons": ["print"]
          }
-       });
-     
+     });
+
+     //Validacion del Formulario sensores
+     $('#sensor-form').bootstrapValidator({
+       message: 'This value is not valid',
+       feedbackIcons: {
+       valid: 'glyphicon glyphicon-ok',
+       invalid: 'glyphicon glyphicon-remove',
+       validating: 'glyphicon glyphicon-refresh'
+       },
+       fields: {
+        iId: {
+	 container: '#idMessage',
+	 validators: {
+	   notEmpty: {message: "Id_nodo is required"},
+	   between: {
+                min: 0,
+                max: 99,
+                message: 'The Id_nodo must be between 0 and 99'
+                }
+	     } 
+        }, 
+        iLoc: {
+          container: '#locMessage',
+          validators: {
+	    notEmpty: {message: "Loc is required"},
+            between: {
+                min: 0,
+                max: 99,
+                message: 'The Location must be between 0 and 99'
+                }
+           }
+        },
+	checkT: {
+           container: '#checkMessage',
+           validators: {
+            choice: {
+	      min: 1,	
+              message: 'The type of sensors is required'
+	    }
+           }
+         }
+       } 
+      });
+
      //Carga de la Tabla
      socket.on('SLoad', function (data) {
         table.row.add(data);
@@ -168,7 +210,7 @@
     $('#sensorTable tbody').on( 'click', 'tr', function () {
         if ( $(this).hasClass('selected') ) {
             $(this).removeClass('selected');
-	          $(this).removeClass('warning');
+            $(this).removeClass('warning');
         }
         else {
             table.$('tr.selected').removeClass('warning');
@@ -186,12 +228,12 @@
      //Boton de borrado filas tabla
      $('#buttonDel').click( function () {
         var rowData = table.row('.warning').data();
-	      var flag = $('#CheckMedidas').is(':checked');
-	      //Borramos el sensor y/o las medidas del servidor
-	      socket.emit('SDelete',rowData[0],flag);
-	      //Lo borramos de la tabla
+	var flag = $('#CheckMedidas').is(':checked');
+	//Borramos el sensor y/o las medidas del servidor
+	socket.emit('SDelete',rowData[0],flag);
+	//Lo borramos de la tabla
         table.row('.warning').remove().draw( false );
-	      //draw false para quedarse en la misma pagina
+	//draw false para quedarse en la misma pagina
      });
 
      //Boton de reset ED
@@ -214,6 +256,9 @@
 
      //Boton de guardado de formulario
      $("#buttonSave").click(function(){
+      //Validamos el formulario
+      $("#sensor-form").data('bootstrapValidator').validate();
+      if($("#sensor-form").data('bootstrapValidator').isValid()){
       	var id_nodo = $('#inputId').val();
       	var loc = $('#inputLoc').val();
       	tipos="";
@@ -225,14 +270,16 @@
       	socket.emit('SNew',[id_nodo,tipos,loc,0]);
       	//Lo guardamos en la tabla
       	table.row.add([id_nodo,tipos,loc,0,-1]);
-      	table.draw();        
+      	table.draw();
+      }        
      });
 
      //Boton de reset de formulario
      $("#buttonReset").click(function(){
-       $('#sensor-form').each (function(){
-        this.reset();
-       });
+      $('#sensor-form').each (function(){
+       this.reset();
+      });
+     $('#sensor-form').bootstrapValidator('resetForm',true);
      });
 
   });

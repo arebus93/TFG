@@ -49,7 +49,8 @@ function handler(req, res) {
       res.end(data);
       });
       break;
-     default: //No existe el path o no es accesible
+
+    default: //No existe el path o no es accesible
       console.log('No existe el path'+path)
       res.writeHead(404);
       return res.end('Error path not found')
@@ -242,9 +243,9 @@ function sensores(socket) {
   var db= new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
   var tipos=""; //cadena con los tipos de sensores del nodo
   var idS=0; //Id del siguiente leido
-  var bat=5; //Bateria valor por defecto
+  var bat=0; //Bateria valor por defecto
  
-  db.all("SELECT Id_nodo,Id_sensor, Localizacion,Id_red FROM Sensores ORDER BY Id_sensor",function (err,referencias){
+  db.all("SELECT Id_nodo,Id_sensor,Localizacion,Id_red FROM Sensores ORDER BY Id_sensor",function (err,referencias){
     if(err){
        console.log('exec error: ' + err);
     }else{//cargamos los sensores
@@ -257,7 +258,7 @@ function sensores(socket) {
         r=(refs[i].Id_sensor)%10;
          (function(r){
            if (r==4){
-            db.all("SELECT TOP 1 Valor FROM Medidas WHERE Id_sensor='"+r+"' ORDER BY Fecha, Hora",function (err2,rows) {
+            db.all("SELECT Valor FROM Medidas WHERE Id_sensor='"+refs[i].Id_sensor+"' ORDER BY Fecha, Hora LIMIT 1",function (err2,rows) {
               if(err2) {
               console.log('exec error: ' + err2);
               }else {
@@ -272,7 +273,7 @@ function sensores(socket) {
 	  id_red=refs[i].Id_red;
           socket.emit('SLoad',[id,tipos,loc,bat,id_red]);
           tipos="";
-          bat=5;
+          bat=0;
          }
 	}
       }
