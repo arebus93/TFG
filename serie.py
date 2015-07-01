@@ -6,11 +6,15 @@ import time
 import sys 
 
 #--Funcion para leer el puerto serie
-def leerSerial():
+def readSerial():
  if(s.inWaiting()):
   return s.readline()
  else:
   return ""
+
+def writeSerial(cadena):
+ s.write(cadena)
+ return
 
 #--Configuracion del modulo HC-11 con comandos AT
 def comandosAT():

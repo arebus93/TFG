@@ -56,30 +56,50 @@
         </div>
        </div>
     
-   <!--Tabla de Sensores-->
+  <!--Botones y formulario Set--> 
   <div class="row-markering">
-   <div class="col-lg-4" style="padding-bottom: 15px;">
-   <div class="btn-group" role="group">
-    <button type="button" id="buttonResED" class="btn btn-info">
-     <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>Reset ED
-    </button>
-    <button type="button" id="ButtonTimer" class="btn btn-warning">
-     <span class="glyphicon glyphicon-time" aria-hidden="true"></span>Set Timer
-    </button>
-    <button type="button" id="buttonDel" class="btn btn-danger">
+   <div class="col-lg-4" style="padding-top: 15px;">
+    <div class="btn-group has-error" role="group">
+     <button type="button" id="buttonResED" class="btn btn-info">
+      <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>Reset ED
+     </button>
+     <button type="button" id="ButtonTimer" class="btn btn-warning">
+      <span class="glyphicon glyphicon-time" aria-hidden="true"></span>Set Timer
+     </button>
+     <button type="button" id="buttonDel" class="btn btn-danger">
       <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Eliminar
-    </button>
-   </div>
-   </div>
-   <div class="col-lg-8" style="padding-bottom: 15px;">
-    <div class="form-inline">
-     <input type="checkbox" id="CheckMedidas"> Eliminar medidas
-     <input type="number" id="inputTsleep" class="form-control" placeholder="Tsleep">
-     <input type="number" id="inputTWake" class="form-control" placeholder="TWake">
+     </button>
+     <span class="help-block" id="SelMessage" style="display:none;">Primero hay que seleccionar un nodo de la tabla.</span>
     </div>
    </div>
-  </div>
 
+   <div class="col-lg-8">
+    <form id="set-form">
+     <div class="col-lg-4" style="padding-top: 15px;">
+     <div class="checkbox">
+       <label><input type="checkbox" id="CheckMedidas" name="checkM"> Eliminar medidas</label>
+      <span class="help-block" id="MedMessage" style="display:none;">Se eliminaran las medidas del nodo de la BD.</span>
+      </div>
+     </div>
+     <div class="col-lg-4">
+     <div class="form-group">
+       <label for="inputTsleep" class="col-lg-4 control-label">TSleep</label>
+       <input type="number" class="form-control" id="inputTsleep" name="iTsleep" placeholder="Tsleep">
+       <span class="help-block" id="TSMessage"></span>
+     </div>
+     </div>
+     <div class="col-lg-4">
+     <div class="form-group">
+       <label for="inputTwake" class="col-lg-4 control-label">TWake</label>
+        <input type="number" class="form-control" id="inputTwake" name="iTwake" placeholder="TWake">
+        <span class="help-block" id="TWMessage"></span>
+     </div>
+     </div>   
+    </form>
+   </div>
+  </div>
+  
+   <!--Tabla de Sensores-->
   <div class="row-markering">
    <table id= "sensorTable" class="table table-hover" style="text-align:center;" data-click-to-select="true">
         <thead>
@@ -93,8 +113,9 @@
         </thead>
         <tbody></tbody>
        </table>
-   
-    <form id="sensor-form">
+
+  <!--Formulario de Sensores-->
+     <form id="sensor-form">
         <div class="col-lg-6">
          <div class="form-group">
            <label for="inputId" class="col-lg-3 control-label">Id_Nodo</label>
@@ -136,27 +157,24 @@
               <button type="button" class="btn btn-primary" id= "buttonSave">Guardar</button>
               <button type="button" class="btn btn-default" id="buttonReset">Reset</button>
             </div>
-         </div>
-    </form>
-  </div>    
+         </form>
+       </div>
+    </div>    
     
   <!-- Se creara la tabla dinamicamente con Javascript e Interfaces DOM -->
   <script>
-
     // Creo un WebSocket.
      var socket = io.connect('http://'+ location.host);
      // console.log(location.host);
-
    // Cargo la tablaSensores
    $(document).ready(function(){
      var table = $('#sensorTable').DataTable( {
-         "sRowSelected": "single",
-	 "sDom": 'T<"clear">lfrtip',
-         "oTableTools": {
-	    "aButtons": ["print"]
-         }
+      "sRowSelected": "single",
+      "sDom": 'T<"clear">lfrtip',
+      "oTableTools": {
+      "aButtons": ["print"]
+      }
      });
-
      //Validacion del Formulario sensores
      $('#sensor-form').bootstrapValidator({
        message: 'This value is not valid',
@@ -167,38 +185,72 @@
        },
        fields: {
         iId: {
-	 container: '#idMessage',
-	 validators: {
-	   notEmpty: {message: "Id_nodo is required"},
-	   between: {
-                min: 0,
-                max: 99,
-                message: 'The Id_nodo must be between 0 and 99'
-                }
-	     } 
+	       container: '#idMessage',
+	       validators: {
+	       notEmpty: {message: "Id_nodo is required"},
+	       between: {
+            min: 0,
+            max: 99,
+            message: 'The Id_nodo must be between 0 and 99'
+         }
+         } 
         }, 
         iLoc: {
-          container: '#locMessage',
-          validators: {
-	    notEmpty: {message: "Loc is required"},
-            between: {
-                min: 0,
-                max: 99,
-                message: 'The Location must be between 0 and 99'
-                }
-           }
+         container: '#locMessage',
+         validators: {
+	       notEmpty: {message: "Loc is required"},
+         between: {
+          min: 0,
+          max: 99,
+          message: 'The Location must be between 0 and 99'
+         }
+         }
         },
-	checkT: {
-           container: '#checkMessage',
-           validators: {
-            choice: {
-	      min: 1,	
-              message: 'The type of sensors is required'
-	    }
-           }
+        checkT: {
+          container: '#checkMessage',
+          validators: {
+          choice: {
+	          min: 1,	
+            message: 'The type of sensors is required'
+	        }
+          }
          }
        } 
       });
+
+     //Validacion del Formulario Set  
+     $('#set-form').bootstrapValidator({
+       message: 'This value is not valid',
+       feedbackIcons: {
+       valid: 'glyphicon glyphicon-ok',
+       invalid: 'glyphicon glyphicon-remove',
+       validating: 'glyphicon glyphicon-refresh'
+       },
+       fields: {
+        iTsleep: {
+         container: '#TSMessage',
+         validators: {
+         notEmpty: {message: "Tsleep is required"},
+         between: {
+           min: 0,
+           max: 3600,
+           message: 'The Tsleep time must be between 0 and 3600s'
+         }
+        } 
+       }, 
+        iTwake: {
+          container: '#TWMessage',
+          validators: {
+          notEmpty: {message: "Twake is required"},
+          between: {
+            min: 0,
+            max: 3600,
+            message: 'The TWake time must be between 0 and 3600s'
+            }
+          }
+        }
+      } 
+     });
 
      //Carga de la Tabla
      socket.on('SLoad', function (data) {
@@ -222,36 +274,63 @@
 
     //Boton de reset AP
      $('#buttonResAP').click( function () {
-        socket.emit('ResetAP');
+        socket.emit('SReset',0);
        });
 
      //Boton de borrado filas tabla
      $('#buttonDel').click( function () {
         var rowData = table.row('.warning').data();
-	var flag = $('#CheckMedidas').is(':checked');
-	//Borramos el sensor y/o las medidas del servidor
-	socket.emit('SDelete',rowData[0],flag);
-	//Lo borramos de la tabla
+	if(typeof rowData === 'undefined'){
+          $('#SelMessage').show();
+        }else{
+ 	var flag = $('#CheckMedidas').is(':checked');
+        //Borramos el sensor y/o las medidas del servidor
+        socket.emit('SDelete',rowData[0],flag);
+       //Lo borramos de la tabla
         table.row('.warning').remove().draw( false );
-	//draw false para quedarse en la misma pagina
+        //draw false para quedarse en la misma pagina
+        $('#SelMessage').hide();
+       }
+     });
+
+     //Warnibg Medidas
+     $('#CheckMedidas').click( function () {
+      if($(this).is(':checked')){
+        $(this).closest('.checkbox').addClass('has-warning');
+	$('#MedMessage').show();
+      }
+      else if($(this).is(":not(:checked)")){
+        $(this).closest('.checkbox').removeClass('has-warning');
+        $('#MedMessage').hide();
+      }
      });
 
      //Boton de reset ED
      $('#buttonResED').click( function () {
         var rowData = table.row('.warning').data();
-        socket.emit('SReset',rowData[4]);
-        table.row('.warning').removeClass('selected');
-        table.row('.warning').removeClass('warning');
+        if(typeof rowData === 'undefined'){
+	  $('#SelMessage').show();
+	}else{
+	socket.emit('SReset',rowData[4]);
+        table.$('tr.selected').removeClass('warning');
+        table.$('tr.selected').removeClass('selected');
+           $('#SelMessage').hide();
+        }
       });
 
      //Boton set TimerWeakup y TimerSleep
      $('#ButtonTimer').click( function () {
+      //Validamos el formulario
+      $("#set-form").data('bootstrapValidator').validate();
+      if($("#set-form").data('bootstrapValidator').isValid()){
+        var id_nodo = $('#inputId').val();
         var rowData = table.row('.warning').data();
         var Tsleep =  $('#inputTsleep').val();
-        var TWake = $('#inputTWake').val();
+        var TWake = $('#inputTwake').val();
         socket.emit('STimer',rowData[4],Tsleep,TWake);
-        table.row('.warning').removeClass('selected');
-        table.row('.warning').removeClass('warning');
+        table.$('tr.selected').removeClass('warning');
+        table.$('tr.selected').removeClass('selected');
+      }
       });
 
      //Boton de guardado de formulario
@@ -281,9 +360,7 @@
       });
      $('#sensor-form').bootstrapValidator('resetForm',true);
      });
-
   });
   </script>
   </body>
 </html>
-

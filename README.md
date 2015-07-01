@@ -53,7 +53,7 @@ npm config set registry http://registry.npmjs.org/
 ~~~
 npm install
 ~~~
-**STEP 6: Eejcutar el servidor **
+**STEP 6: Eejcutar el servidor**
 ~~~
 $ nodejs server.js
 ~~~

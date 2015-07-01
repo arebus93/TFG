@@ -85,7 +85,7 @@ io.sockets.on('connection', function(socket) {
    });
  }); 
  
- //Eliminamos un sensor
+ //Eliminamos un dispositivo final ED
  socket.on('SDelete', function (id_nodo, flag){
   //Lo escribimos en el fichero exchange.txt
   var linea="DELETE,"+id_nodo+","+flag+",\n"  
@@ -94,36 +94,38 @@ io.sockets.on('connection', function(socket) {
    });
  });
 
-  //Reseteamos el punto de acceso AP
- socket.on('ResetAP', function(){
-  //Lo escribimos en el fichero exchange.txt
-  var linea="RESET,AP,\n"  
-  fs.appendFile('exchange.txt',linea,function(err){
-   if(err){console.log('exec error: ' + err);}
-   });
- });
-
- //Resetear un dispositivo final ED
+ //Resetear un nodo de la red (ED o AP)
  socket.on('SReset', function (id_red){
+  if(id_red < 0){
+   console.log("Nodo no inicializado");
+  }else{
   //Lo escribimos en el fichero exchange.txt
   var linea="RESET,"+id_red+",\n"  
   fs.appendFile('exchange.txt',linea,function(err){
    if(err){console.log('exec error: ' + err);}
    });
+  }
  });
 
+ //Set de los tiempos de Tsleep y Twake de un dispositivo ED
  socket.on('STimer', function (id_red,TSleep,TWake){
+  if(id_red < 0){
+   console.log("Nodo no inicializado");
+  }else{
   //Lo escribimos en el fichero exchange.txt
-  var linea="SET,"+id_red+","+TSleep+","+TWake+",\n"  
+  var linea="SET,TIME,"+id_red+","+TSleep+","+TWake+",\n"  
   fs.appendFile('exchange.txt',linea,function(err){
    if(err){console.log('exec error: ' + err);}
    });
+  }
  });
+
  //Eliminamos la conexion
  socket.on('disconnect', function() {
   connectCounter--;
   console.log("NUMBER OF CONNECTIONS--: "+connectCounter);
  });
+
  // Visualizacion de los datos del sistema.
  if (typeof path != 'undefined'){
     switch(path){
@@ -141,7 +143,7 @@ io.sockets.on('connection', function(socket) {
 //Cada timerWeb milisegundos mandaremos a la gráfica un nuevo valor.
 function info(socket) {
  var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
- db.all("SELECT Id_sensor FROM Sensores ORDER BY Id_sensor", function (err,refs) {
+ db.all("SELECT Id_sensor FROM Sensores WHERE Tipo != 'Bateria' ORDER BY Id_sensor", function (err,refs) {
     if(err){
        console.log('exec error: ' + err);
     }else{ //cargamos los sensores
@@ -166,7 +168,7 @@ function info(socket) {
  //Actualizacion de datos en la pagina Web
  setInterval(function(){
  var db= new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
-  db.all("SELECT Num_registro, Id_sensor, Valor, Fecha, Hora FROM Medidas WHERE Num_registro>'" + lastRead + "'" , function ( err2,rows) {
+  db.all("SELECT Num_registro, Id_sensor, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor%10 != 4) AND (Num_registro>'" + lastRead + "')" , function ( err2,rows) {
     if(err2) {
       console.log('exec error: ' + err2);
     }else {
@@ -199,7 +201,7 @@ function socket_selector(socket,rows,r,func) {
     var tipo=r%10;
     switch(tipo){
       case 1: //Temperatura
-        var temp=parseFloat(rows[j].Valor)/10;
+        var temp=parseFloat(rows[j].Valor)/100;
         var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
         datos.push([date,temp]);
       break;
@@ -262,7 +264,7 @@ function sensores(socket) {
               if(err2) {
               console.log('exec error: ' + err2);
               }else {
-               bat=rows.Valor;
+               bat=rows.Valor/1000;
               }
             });
           }

@@ -69,16 +69,20 @@ def cargarSensores():
 	bd = sqlite3.connect('database.sqlite3')
 	cursor = bd.cursor()
 
-        sql = "SELECT Id_nodo, Id_sensor FROM Sensores ORDER BY Id_sensor ASC"
+        sql = "SELECT Id_nodo,Id_sensor,Id_red FROM Sensores ORDER BY Id_sensor ASC"
 
 	try:
    		cursor.execute(sql)	
 		rows=cursor.fetchall()
-
 		d={}
-		for x,y in rows:
-		 d.setdefault(x,[]).append(y)
-		print d
+		#-Creamos la cache de sensores, donde el primer elemento
+		#- es el id_red y el resto son los sensores del nodo
+		for x,y,z in rows:
+		 if x in d.keys():
+        	   d[x].append(y)
+    		 else:
+        	   d[x]=[z,y]
+	        print d
 		return d
 
 	except sqlite3.Error, e:
