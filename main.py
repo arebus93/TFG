@@ -51,13 +51,12 @@ precarga_sensores =[ (0,01,'Temperatura',0,0),
                      (3,35,'Consumo', 3,-1),
                      (3,36,'Presion', 3,-1),
                      (3,37,'Humedad', 3,-1),
-                     (4,41,'Temperatura',4,-1),
+		     (4,41,'Temperatura',4,-1),
                      (4,42,'Presencia', 4,-1),
-                     (4,43,'Luminosidad',4,-1),
-                     (4,45,'Consumo', 4,-1),
-                     (4,46,'Presion', 4,-1),
-                     (4,47,'Humedad', 4,-1),
-          	     (5,51,'Temperatura',5,-1),
+ 		     (4,44,'Bateria',4,-1),
+		     (5,51,'Temperatura',5,-1),
+                     (5,52,'Presencia', 5,-1),
+                     (5,54,'Bateria',5,-1),
 		     (6,61,'Temperatura',6,-1),
                      (6,62,'Presencia', 6,-1),
                      (6,64,'Bateria',6,-1)]
@@ -107,6 +106,9 @@ def nuevasMedidas():
       #-o no se ha inicializado
       if ((rows[0]== -1) or (int(parsed_json['N'])== 1)):
         db.updateId_red(Id,int(parsed_json['R']))
+        #-Recargamos la cache
+	global r_sensores
+        r_sensores=db.cargarSensores()
       else:
        for i in rows[1:]:
         x=(i%10)-1
@@ -119,7 +121,7 @@ def nuevasMedidas():
 	  print "Sensor no esta en la base de datos"
  except ValueError, e:
 	print "Error al parsear el JSON",e	
-
+	
 #-Aplicamos los cambios efectuados en el servidorWeb
 def cambiosServidor():
  try:
@@ -163,14 +165,11 @@ def cambiosServidor():
      r_sensores=db.cargarSensores()
 
     elif(fun=="RESET"):
-
       id_red=datos[1]
-
-      if(id_red==0): #-Reset AP
+      if(id_red=='0'): #-Reset AP
 	cadena='{\"RST\"}'	
       else:     #-Reset ED
 	cadena='{\"ID\":'+ id_red + ',\"CNF\",{\"RST\"}}'
-      
       print cadena
       #-Enviamos el comando de RESET a traves de la UART
       ser.writeSerial(cadena)
@@ -178,10 +177,9 @@ def cambiosServidor():
     elif(fun=="SET"):
       acc = datos[1]
       id_red = datos[2]
-
       if(acc=="TIME"):
-       Tsleep = datos[3]
-       Twake = datos[4]   
+       Tsleep =datos[3];
+       Twake = datos[4];   
        cadena='{\"ID\":'+ id_red + ',\"CNF\",{\"AT\":'+ Twake + '\"ST\":'+ Tsleep +'}}'
 
       elif(acc=="RELE"):

@@ -84,14 +84,14 @@
      <div class="col-lg-4">
      <div class="form-group">
        <label for="inputTsleep" class="col-lg-4 control-label">TSleep</label>
-       <input type="number" class="form-control" id="inputTsleep" name="iTsleep" placeholder="Tsleep">
+       <input type="number" class="form-control" id="inputTsleep" name="iTsleep" placeholder="Tsleep in ms">
        <span class="help-block" id="TSMessage"></span>
      </div>
      </div>
      <div class="col-lg-4">
      <div class="form-group">
        <label for="inputTwake" class="col-lg-4 control-label">TWake</label>
-        <input type="number" class="form-control" id="inputTwake" name="iTwake" placeholder="TWake">
+        <input type="number" class="form-control" id="inputTwake" name="iTwake" placeholder="TWake in ms">
         <span class="help-block" id="TWMessage"></span>
      </div>
      </div>   
@@ -233,7 +233,7 @@
          notEmpty: {message: "Tsleep is required"},
          between: {
            min: 0,
-           max: 3600,
+           max: 60000,
            message: 'The Tsleep time must be between 0 and 3600s'
          }
         } 
@@ -244,7 +244,7 @@
           notEmpty: {message: "Twake is required"},
           between: {
             min: 0,
-            max: 3600,
+            max: 1000,
             message: 'The TWake time must be between 0 and 3600s'
             }
           }
@@ -323,13 +323,19 @@
       //Validamos el formulario
       $("#set-form").data('bootstrapValidator').validate();
       if($("#set-form").data('bootstrapValidator').isValid()){
-        var id_nodo = $('#inputId').val();
         var rowData = table.row('.warning').data();
-        var Tsleep =  $('#inputTsleep').val();
-        var TWake = $('#inputTwake').val();
-        socket.emit('STimer',rowData[4],Tsleep,TWake);
-        table.$('tr.selected').removeClass('warning');
-        table.$('tr.selected').removeClass('selected');
+        if(typeof rowData === 'undefined'){
+          $('#SelMessage').show();
+        }else{
+         var id_nodo = $('#inputId').val();
+         var rowData = table.row('.warning').data();
+         var Tsleep =  $('#inputTsleep').val();
+         var TWake = $('#inputTwake').val();
+         socket.emit('STimer',rowData[4],Tsleep,TWake);
+         table.$('tr.selected').removeClass('warning');
+         table.$('tr.selected').removeClass('selected');
+         $('#SelMessage').hide();
+	 }
       }
       });
 

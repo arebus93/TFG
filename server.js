@@ -243,10 +243,9 @@ function socket_selector(socket,rows,r,func) {
 
 function sensores(socket) {
   var db= new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
+  var idS=0; //Id del siguiente leido   
   var tipos=""; //cadena con los tipos de sensores del nodo
-  var idS=0; //Id del siguiente leido
-  var bat=0; //Bateria valor por defecto
- 
+  var bat=0;
   db.all("SELECT Id_nodo,Id_sensor,Localizacion,Id_red FROM Sensores ORDER BY Id_sensor",function (err,referencias){
     if(err){
        console.log('exec error: ' + err);
@@ -258,26 +257,31 @@ function sensores(socket) {
 	     if(i==l1-1){idS=0;}
 	     else{idS=refs[i+1].Id_nodo;}
         r=(refs[i].Id_sensor)%10;
-         (function(r){
+	 (function(r){
            if (r==4){
-            db.all("SELECT Valor FROM Medidas WHERE Id_sensor='"+refs[i].Id_sensor+"' ORDER BY Fecha, Hora LIMIT 1",function (err2,rows) {
+	    tipos=tipos+T_sensors[1][(r-1)]+", ";
+             db.all("SELECT Valor FROM Medidas WHERE Id_sensor='"+refs[i].Id_sensor+"' ORDER BY Fecha, Hora LIMIT 1",function (err2,rows) {
               if(err2) {
               console.log('exec error: ' + err2);
               }else {
-               bat=rows.Valor/1000;
-              }
+               (function(rows){
+  	         if(rows.length){
+   	         bat=rows[0].Valor/1000;
+	         }
+               })(rows);
+	     }
             });
-          }
-          else {tipos=tipos+T_sensors[1][(r-1)]+", ";}
+	   }
+           else {tipos=tipos+T_sensors[1][(r-1)]+", ";}
+	    if( idS!=id){ //Hemos terminado el nodo
+             loc=refs[i].Localizacion;
+             id_red=refs[i].Id_red;
+             socket.emit('SLoad',[id,tipos,loc,bat,id_red]);
+             bat=0;
+	     tipos="";
+             }
          })(r);
-         if( idS!=id){ //Hemos terminado el nodo
-	  loc=refs[i].Localizacion;
-	  id_red=refs[i].Id_red;
-          socket.emit('SLoad',[id,tipos,loc,bat,id_red]);
-          tipos="";
-          bat=0;
          }
-	}
       }
   });
   db.close();
