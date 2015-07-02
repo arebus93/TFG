@@ -216,7 +216,7 @@ function socket_selector(socket,rows,r,func) {
         datos.push([date,lum]);
       break;
       case 5: //Consumo
-        var cons=parseFloat(rows[j].Valor)/10;
+        var cons=parseFloat(rows[j].Valor);
         var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
         datos.push([date,cons]);
       break;

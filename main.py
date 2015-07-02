@@ -33,27 +33,9 @@ db.crearTablas()
 precarga_sensores =[ (0,01,'Temperatura',0,0),
                      (0,02,'Presencia', 0,0),
                      (0,04,'Bateria',0,0),
-		     (1,11,'Temperatura', 1,-1),
-                     (1,12,'Presencia', 1,-1),
-                     (1,13,'Luminosidad', 1,-1),
-                     (1,15,'Consumo', 1,-1),
-                     (1,16,'Presion', 1,-1),
-                     (1,17,'Humedad', 1,-1),
-                     (2,21,'Temperatura', 2,-1),
-                     (2,22,'Presencia', 2,-1),
-                     (2,23,'Luminosidad', 2,-1),
-                     (2,25,'Consumo', 2,-1),
-                     (2,26,'Presion', 2,-1),
-                     (2,27,'Humedad', 2,-1),
-                     (3,31,'Temperatura', 3,-1),
-                     (3,32,'Presencia', 3,-1),
-                     (3,33,'Luminosidad', 3,-1),
-                     (3,35,'Consumo', 3,-1),
-                     (3,36,'Presion', 3,-1),
-                     (3,37,'Humedad', 3,-1),
-		     (4,41,'Temperatura',4,-1),
-                     (4,42,'Presencia', 4,-1),
- 		     (4,44,'Bateria',4,-1),
+		     (8,81,'Temperatura',8,-1),
+                     (8,82,'Presencia', 8,-1),
+ 		     (8,84,'Bateria',8,-1),
 		     (5,51,'Temperatura',5,-1),
                      (5,52,'Presencia', 5,-1),
                      (5,54,'Bateria',5,-1),
@@ -96,6 +78,7 @@ def nuevasMedidas():
  try:
     cadena=ser.readSerial()
     if (len(cadena)>2):
+     print cadena
      parsed_json = json.loads(cadena)
      Id=int(parsed_json['I'])
      #-Buscamos en la cache r_sensores si existe,
