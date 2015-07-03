@@ -143,6 +143,8 @@ io.sockets.on('connection', function(socket) {
 //Cada timerWeb milisegundos mandaremos a la gráfica un nuevo valor.
 function info(socket) {
  var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
+ var f = new Date();
+ var factual=f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear();
  db.all("SELECT Id_sensor FROM Sensores WHERE Tipo != 'Bateria' ORDER BY Id_sensor", function (err,refs) {
     if(err){
        console.log('exec error: ' + err);
@@ -150,12 +152,11 @@ function info(socket) {
       for(var i=0, l1=refs.length; i<l1;i++){
         var r=refs[i].Id_sensor;
         (function(r){
-            db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE Id_sensor='" + r + "'ORDER BY Num_registro" , function ( err2,rows) {
+	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE Id_sensor='"+r+"' AND FECHA= '"+factual+"' ORDER BY Num_registro" , function ( err2,rows) {
             if(err) {
               console.log('exec error: ' + err2);
             }else {
               //console.log(rows);
-              //console.log(r);
               socket_selector(socket,rows,r,'Load');
             }
           })
@@ -168,7 +169,7 @@ function info(socket) {
  //Actualizacion de datos en la pagina Web
  setInterval(function(){
  var db= new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
-  db.all("SELECT Num_registro, Id_sensor, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor%10 != 4) AND (Num_registro>'" + lastRead + "')" , function ( err2,rows) {
+  db.all("SELECT Num_registro, Id_sensor, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor%10 != 4)AND FECHA='"+factual+"' AND (Num_registro>'" + lastRead + "') ORDER BY Num_registro" , function ( err2,rows) {
     if(err2) {
       console.log('exec error: ' + err2);
     }else {
@@ -187,14 +188,22 @@ function info(socket) {
 function socket_selector(socket,rows,r,func) {
   var datos=[];
   var l2=rows.length;
+
+  if(func=='Load'){
    //Actualizo el ultimo registro leido.
-  if (l2>0){//Compruebo si hay medidas para ese sensor, si no lo inicializo
+   if (l2>0){//Compruebo si hay medidas para ese sensor, si no lo inicializo
     if(lastRead <rows[(l2-1)].Num_registro)
       {lastRead=rows[(l2-1)].Num_registro;}
-  }else{
-    if(func=='Load')
-     {socket.emit(T_sensors[0][((r%10)-1)]+func,T_sensors[0][((r%10)-1)]+(parseInt(r/10)),[])};
-  }
+   }else{
+    socket.emit(T_sensors[0][((r%10)-1)]+func,T_sensors[0][((r%10)-1)]+(parseInt(r/10)),[]);
+   }//Actualizo el ultimo registro leido
+  
+  }else if(func=='Update'){
+    if(l2>0){
+     lastRead=rows[l2-1].Num_registro;
+    }
+  }else{console.log("Funcion no contemplada") }
+ 
   for(var j=0;j<l2;j++){
     if(func=='Update')
       {r=rows[j].Id_sensor;}
@@ -250,39 +259,33 @@ function sensores(socket) {
     if(err){
        console.log('exec error: ' + err);
     }else{//cargamos los sensores
-    	refs=referencias;
-    	//console.log(refs);
+      refs=referencias;
       for(var i=0, l1=refs.length; i<l1;i++){
        var id=refs[i].Id_nodo;
-	     if(i==l1-1){idS=0;}
-	     else{idS=refs[i+1].Id_nodo;}
-        r=(refs[i].Id_sensor)%10;
-	 (function(r){
-           if (r==4){
-	    tipos=tipos+T_sensors[1][(r-1)]+", ";
-             db.all("SELECT Valor FROM Medidas WHERE Id_sensor='"+refs[i].Id_sensor+"' ORDER BY Fecha, Hora LIMIT 1",function (err2,rows) {
-              if(err2) {
+       if(i==l1-1){idS=0;}
+       else{idS=refs[i+1].Id_nodo;}
+       var r=(refs[i].Id_sensor)%10;
+      (function(refs,r,i,id,idS){
+         db.all("SELECT Valor FROM Medidas WHERE Id_sensor='"+refs[i].Id_sensor+"'AND Id_sensor%10 ==4  ORDER BY Fecha, Hora LIMIT 1",function (err2,rows) {
+             if(err2) {
               console.log('exec error: ' + err2);
-              }else {
-               (function(rows){
-  	         if(rows.length){
+             }else {
+		tipos=tipos+T_sensors[1][(r-1)]+", ";
+		if(rows.length){
    	         bat=rows[0].Valor/1000;
-	         }
-               })(rows);
-	     }
-            });
-	   }
-           else {tipos=tipos+T_sensors[1][(r-1)]+", ";}
-	    if( idS!=id){ //Hemos terminado el nodo
-             loc=refs[i].Localizacion;
-             id_red=refs[i].Id_red;
-             socket.emit('SLoad',[id,tipos,loc,bat,id_red]);
-             bat=0;
-	     tipos="";
-             }
-         })(r);
-         }
-      }
+	        }
+              	if( idS!=id){ //Hemos terminado el nodo
+              	loc=refs[i].Localizacion;
+              	id_red=refs[i].Id_red;
+              	socket.emit('SLoad',[id,tipos,loc,bat,id_red]);
+              	tipos="";
+		bat=0;
+                }
+ 	    }
+           });
+	})(refs,r,i,id,idS);
+     }
+    }
   });
   db.close();
 }
