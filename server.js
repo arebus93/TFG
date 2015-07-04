@@ -120,6 +120,33 @@ io.sockets.on('connection', function(socket) {
   }
  });
 
+ //Set del Rele ON/OFF
+  socket.on('SRele', function (id_red,flag){
+  if(id_red < 0){
+   console.log("Nodo no inicializado");
+  }else{
+  //Lo escribimos en el fichero exchange.txt
+  var linea="SET,RELE,"+id_red+","+flag+",\n"
+  fs.appendFile('exchange.txt',linea,function(err){
+   if(err){console.log('exec error: ' + err);}
+   });
+  }
+ });
+
+ //Set de Led ED  ON/OFF
+  socket.on('SLeds', function (id_red,flag){
+  if(id_red < 0){
+   console.log("Nodo no inicializado");
+  }else{
+  //Lo escribimos en el fichero exchange.txt
+  var linea="SET,LEDS,"+id_red+","+flag+",\n"
+  fs.appendFile('exchange.txt',linea,function(err){
+   if(err){console.log('exec error: ' + err);}
+   });
+  }
+ });
+
+
  //Eliminamos la conexion
  socket.on('disconnect', function() {
   connectCounter--;
@@ -255,11 +282,12 @@ function sensores(socket) {
   var idS=0; //Id del siguiente leido   
   var tipos=""; //cadena con los tipos de sensores del nodo
   var bat=0;
+  var datos=[];
   db.all("SELECT Id_nodo,Id_sensor,Localizacion,Id_red FROM Sensores ORDER BY Id_sensor",function (err,referencias){
     if(err){
        console.log('exec error: ' + err);
     }else{//cargamos los sensores
-      refs=referencias;
+      var refs=referencias;
       for(var i=0, l1=refs.length; i<l1;i++){
        var id=refs[i].Id_nodo;
        if(i==l1-1){idS=0;}
@@ -277,10 +305,13 @@ function sensores(socket) {
               	if( idS!=id){ //Hemos terminado el nodo
               	loc=refs[i].Localizacion;
               	id_red=refs[i].Id_red;
-              	socket.emit('SLoad',[id,tipos,loc,bat,id_red]);
+              	datos.push([id,tipos,loc,bat,id_red,null]);
               	tipos="";
 		bat=0;
                 }
+               if(i==l1-1){//Envio los datos a la tabla
+               socket.emit('SLoad',datos);
+	       }
  	    }
            });
 	})(refs,r,i,id,idS);
@@ -289,4 +320,3 @@ function sensores(socket) {
   });
   db.close();
 }
-
