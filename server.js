@@ -303,15 +303,13 @@ function sensores(socket) {
    	         bat=rows[0].Valor/1000;
 	        }
               	if( idS!=id){ //Hemos terminado el nodo
-              	loc=refs[i].Localizacion;
-              	id_red=refs[i].Id_red;
+              	var loc =refs[i].Localizacion;
+              	var id_red=refs[i].Id_red;
               	datos.push([id,tipos,loc,bat,id_red,null]);
               	tipos="";
 		bat=0;
                 }
-               if(i==l1-1){//Envio los datos a la tabla
-               socket.emit('SLoad',datos);
-	       }
+	     if(i==l1-1){socket.emit('SLoad',datos);}
  	    }
            });
 	})(refs,r,i,id,idS);

@@ -86,7 +86,7 @@
        <label><input type="checkbox" id="CheckMedidas" name="checkM"> Eliminar medidas</label>
       <div class="alert alert-warning" id="MedMessage" style="display:none;">Se eliminaran las medidas del nodo de la BD.</div>
       </div>
-     </div>
+    </div>
      <div class="col-lg-4">
      <div class="form-group">
        <label for="inputTsleep" class="col-lg-4 control-label">TSleep</label>
@@ -178,10 +178,21 @@
      var table = $('#sensorTable').DataTable( {
       "sRowSelected": "single",
       "sDom": 'T<"clear">lfrtip',
+      "columnDefs": [{
+        "data": null,
+        "defaultContent": '<span class="glyphicon glyphicon-off" style="color:#C11B17;display: none;"> </span> <span class="glyphicon glyphicon-ok" style="color:#4AA02C;display: none;"></span>',
+        "targets": -1
+      }], //Resalta los nodos con bateria baja
+      "createdRow": function ( row, data, index ) {
+        if ( 2.5 > data[3] ) {
+         $('td', row).eq(3).addClass('warning');
+        }
+      },
       "oTableTools": {
       "aButtons": ["print"]
-      }
+      },
      });
+
      //Validacion del Formulario sensores
      $('#sensor-form').bootstrapValidator({
        message: 'This value is not valid',
@@ -261,9 +272,8 @@
 
      //Carga de la Tabla
      socket.on('SLoad', function (data) {
-       console.log(data);
        table.rows.add(data);
-       table.draw(false);
+       table.draw();
      });
 
     //Seleccion de filas
@@ -278,19 +288,6 @@
             $(this).addClass('selected');
             $(this).addClass('warning');
         }
-    });
-
-    //Resalta los nodos con bateria baja
-    $('#sensorTable').on( 'draw.dt', function () {
-        var colBat =table.column(3).data();
-        $.each(colBat, function (ind, elem) {
-         if(elem > 2.5){ //Bateria ok
-         }
-         else { //Bateria necesita cambio
-          console.log(ind);
-          table.cell(ind,5).data("<button>Click!</button>");
-         }
-        });  
     });
 
     //Boton de reset AP
@@ -332,7 +329,7 @@
         if(typeof rowData === 'undefined'){
           $('#SelMessage').show();
         }else{
-        socket.emit('SRele',rowData[4]);
+	socket.emit('SRele',rowData[4]);
         table.$('tr.selected').removeClass('warning');
         table.$('tr.selected').removeClass('selected');
            $('#SelMessage').hide();
@@ -401,7 +398,7 @@
       	//Lo guardamos en el servidor
       	socket.emit('SNew',[id_nodo,tipos,loc,0]);
       	//Lo guardamos en la tabla
-      	table.row.add([id_nodo,tipos,loc,0,-1]);
+      	table.row.add([id_nodo,tipos,loc,0,-1,null]);
       	table.draw();
       }        
      });
