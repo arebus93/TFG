@@ -75,7 +75,10 @@
      <button type="button" id="buttonDel" class="btn btn-danger">
       <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Eliminar
      </button>
-     <div class="alert alert-warning" id="SelMessage" style="display:none;">Primero hay que seleccionar un nodo de la tabla.</div>
+    </div>
+    <div class="row-markering">
+      <span class="alert alert-warning" id="SelMessage" style="display:none;">Primero hay que seleccionar un nodo de la tabla.</span>
+      <span class="alert alert-warning" id="ReleMessage" style="display:none;">El nodo seleccionado no permite el control de rele.</span>
     </div>
    </div>
 
@@ -178,15 +181,13 @@
      var table = $('#sensorTable').DataTable( {
       "sRowSelected": "single",
       "sDom": 'T<"clear">lfrtip',
-      "columnDefs": [{
-        "data": null,
-        "defaultContent": '<span class="glyphicon glyphicon-off" style="color:#C11B17;display: none;"> </span> <span class="glyphicon glyphicon-ok" style="color:#4AA02C;display: none;"></span>',
-        "targets": -1
-      }], //Resalta los nodos con bateria baja
+      //Resalta los nodos con bateria baja, y añade estado leds y relé
       "createdRow": function ( row, data, index ) {
         if ( 2.5 > data[3] ) {
-         $('td', row).eq(3).addClass('warning');
+         $('td', row).eq(3).append('<span class="glyphicon glyphicon-warning-sign" style="color:#CC9900;"></span>');
         }
+	$('td', row).eq(5).append('<span class="glyphicon glyphicon-ok" style="color:#4AA02C;display:none;"></span>')	
+	                  .append('<span class="glyphicon glyphicon-off" style="color:#C11B17;display:none;"></span>');	
       },
       "oTableTools": {
       "aButtons": ["print"]
@@ -329,23 +330,45 @@
         if(typeof rowData === 'undefined'){
           $('#SelMessage').show();
         }else{
-	socket.emit('SRele',rowData[4]);
-        table.$('tr.selected').removeClass('warning');
-        table.$('tr.selected').removeClass('selected');
-           $('#SelMessage').hide();
+          $('#SelMessage').hide();
+	  if(table.$('tr.selected').find("td").eq(1).text().indexOf("Cons") != -1){
+	  $('#ReleMessage').hide();
+	   var f=table.$('tr.selected').find("td").eq(5).children('span:last').css('display');
+	   if(f=='none' ){
+	    var flag=1; //ON
+	    table.$('tr.selected').find("td").eq(5).children('span:last').show();
+	   }
+	   else{
+	    var flag=0; //OFF
+	    table.$('tr.selected').find("td").eq(5).children('span:last').hide();
+	   }
+	   socket.emit('SRele',rowData[4],flag);
+	  }
+	  else{$('#ReleMessage').show();}
+          table.$('tr.selected').removeClass('warning');
+          table.$('tr.selected').removeClass('selected');
         }
       });
 
      //Boton de Leds ED
      $('#buttonLeds').click( function () {
-        var rowData = table.row('.warning').data();
+       var rowData = table.row('.warning').data();
         if(typeof rowData === 'undefined'){
           $('#SelMessage').show();
         }else{
-        socket.emit('SLeds',rowData[4]);
-        table.$('tr.selected').removeClass('warning');
-        table.$('tr.selected').removeClass('selected');
-           $('#SelMessage').hide();
+          $('#SelMessage').hide();
+           var f=table.$('tr.selected').find("td").eq(5).children('span:first').css('display');
+           if(f=='none' ){
+            var flag=1; //ON
+            table.$('tr.selected').find("td").eq(5).children('span:first').show();
+           }
+           else{
+            var flag=0; //OFF
+            table.$('tr.selected').find("td").eq(5).children('span:first').hide();
+           }
+          socket.emit('SLeds',rowData[4],flag);
+          table.$('tr.selected').removeClass('warning');
+          table.$('tr.selected').removeClass('selected');
         }
       });
 
