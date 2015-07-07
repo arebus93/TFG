@@ -419,7 +419,7 @@
       	   tipos=tipos+tipo+", ";
      	  });
       	//Lo guardamos en el servidor
-      	socket.emit('SNew',[id_nodo,tipos,loc,0]);
+      	socket.emit('SNew',[id_nodo,tipos,loc,-1]);
       	//Lo guardamos en la tabla
       	table.row.add([id_nodo,tipos,loc,0,-1,null]);
       	table.draw();

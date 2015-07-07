@@ -1,0 +1,197 @@
+<!--
+    Autor: Adrián Arévalo Aguirre
+-->
+
+<html class="no-js" lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title> DOMOLabo B105 </title>
+
+    <!-- Importo el módulo socket.io que tengo en el proyecto -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery.js"></script>
+
+    <!-- Importo el archivo Javascript de Highcharts directamente desde su servidor -->
+      <script src="http://code.highcharts.com/stock/highstock.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+</head>
+<body>
+  <div class="container">
+
+  <!--Pannel Heading-->
+    <div class="row marketing">
+      <div class="col-lg-12">
+        <div class="panel panel-primary" style="width:100% ;">
+          <div class="panel-heading" style="background:#228B22;" >Panel Informacion Domotica B105</div>
+          <div class="panel-body">
+    <div class="col-lg-6">
+            <p>Here you can see the general storaged info of the domotics services available in the labo </p>
+    </div>
+          <div class="col-lg-6">
+    <div class="btn-group pull-right">
+            <a href="/" class="btn btn-default btn-sm">Tiempo real</a>
+            <a href="#" class="btn btn-default btn-sm active">Historico</a>
+            <a href="/sensors" class="btn btn-success btn-sm">Sensores</a>
+          </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   <!--Graficas de Medidas-->
+    <div class="row marketing">
+      <div class="col-lg-6">
+        <div class="container" id="chartTemp" style="width:100%; height:300px;"></div>
+      </div>
+   
+      <div class="col-lg-6">
+        <div class="container" id="chartPres" style="width:100%; height:300px;"></div>
+      </div>
+    </div>
+
+    <div class="row marketing">
+      <div class="col-lg-6">
+        <div class="container" id="chartCons" style="width:100%; height:300px;"></div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="container" id="chartLum" style="width:100%; height:300px;"></div>
+      </div>
+    </div>
+
+    <div class="row marketing">
+      <div class="col-lg-6">
+        <div class="container" id="chartAtm" style="width:100%; height:300px;"></div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="container" id="chartHum" style="width:100%; height:300px;"></div>
+      </div>
+    </div>
+
+  </div>
+
+    <!-- Comienza el Javascript -->
+    <script>
+    // Creo un WebSocket. 
+    var socket = io.connect('http://'+ location.host);
+    // console.log(location.host)
+      
+    // Creo las graficas de Temperatura, Presencia,Consumo, Luminosidad,
+    //Presion y Humedad.
+    var chartTemp, chartPres, chartCons, chartLum, chartAtm, chartHum;
+    
+    //Usar la hora local en vez de la UTC.
+      Highcharts.setOptions({
+        global: {
+          useUTC: false
+        }
+      });
+
+    //Load new data depending on the selected min and max
+    function afterSetExtremes(e) {
+        var chartTemp = $('#chartTemp').highcharts();
+        chartTemp.showLoading('Loading data from server...');
+        //Pido el intervalo de medidas seleccionado al servidor
+        socket.emit('TReload', Math.round(e.min),Math.round(e.max));
+    }
+
+    //Grafica de Temperatura
+    chartTemp = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartTemp',
+             zoomType: 'x', 
+        events: {
+                load: function() {
+              //Cuando cargo la grafica por primera vez, cago las
+              // medidas alamcenadas de cada sensor
+              socket.on('TLoad', function (id, datos) {
+                   chartTemp.addSeries({
+                    name: id,
+                    id:id,
+                    data:datos,
+                    type:'spline'
+                   },false);
+                   chartTemp.redraw();        
+             });
+             //Recoge los datos que manda el servidor y los presenta en la grafica seleccionada
+    	     socket.on('TLoad2', function (id, datos){
+      		var series=chartTemp.get(id);
+      		series.setData(datos);
+      		chartTemp.hideLoading();
+             });
+              },
+            }
+        },
+        navigator : {
+                adaptToUpdatedData: false
+        },
+        scrollbar: {
+                liveRedraw: false
+        },
+        title: {
+            text: 'Temperatura'
+        },
+        rangeSelector :{
+            buttons: [{
+                 type: 'hour',
+                    count: 1,
+                    text: '1h'
+                }, {
+                    type: 'day',
+                    count: 1,
+                    text: '1d'
+                }, {
+                    type: 'month',
+                    count: 1,
+                    text: '1m'
+                }, {
+                    type: 'year',
+                    count: 1,
+                    text: '1y'
+                }, {
+                    type: 'all',
+                    text: 'All'
+                }],
+                inputEnabled: false, // it supports only days
+                selected : 4 // all
+            },
+        xAxis : {
+          type: 'datetime',  
+          events : {
+              afterSetExtremes : afterSetExtremes
+          },
+          minRange: 3600 * 1000 // one hour
+        },
+        yAxis: {
+            minPadding: 0.1,
+            maxPadding: 0.1
+        },
+        tooltip: {
+                    valueDecimals: 2,
+                    valueSuffix: '°C'
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+  
+    </script>   
+</body>
+</html>
+      

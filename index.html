@@ -35,12 +35,12 @@
           <div class="panel-heading" style="background:#228B22;" >Panel Informacion Domotica B105</div>
           <div class="panel-body">
 	  <div class="col-lg-6">
-            <p>Here you can see the general info of the domotics services availabe in the labo </p>
+            <p>Here you can see the general info of the domotics services availabe on real tIme in the labo </p>
 	  </div>
           <div class="col-lg-6">
 	  <div class="btn-group pull-right">
             <a href="#" class="btn btn-default btn-sm active">Tiempo real</a>
-            <a href="#" class="btn btn-default btn-sm">Historico</a>
+            <a href="/2" class="btn btn-default btn-sm">Historico</a>
             <a href="/sensors" class="btn btn-success btn-sm">Sensores</a>
           </div>
           </div>
@@ -98,6 +98,7 @@
           useUTC: false
         }
       });
+
     //Grafica de Temperatura
     chartTemp = new Highcharts.StockChart({
         chart: {
@@ -123,9 +124,6 @@
                 });
               }
             }
-        },
-        rangeSelector : {
-            selected : 1
         },
         title: {
             text: 'Temperatura'
@@ -175,9 +173,6 @@
                  });
                }
             }
-        },
-        rangeSelector : {
-            selected : 1
         },
         title: {
             text: 'Presencia/Ausencia'
@@ -276,9 +271,6 @@
               }
             }
         },
-        rangeSelector : {
-            selected : 1
-        },
         title: {
             text: 'Luminosidad'
         },
@@ -327,9 +319,6 @@
                }
             }
         },
-        rangeSelector : {
-            selected : 1
-        },
         title: {
             text: 'Presión Atmosférica'
         },
@@ -377,9 +366,6 @@
                   });
                }
             }
-        },
-        rangeSelector : {
-            selected : 1
         },
         title: {
             text: 'Humedad relativa'

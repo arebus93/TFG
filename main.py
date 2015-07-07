@@ -33,18 +33,15 @@ db.crearTablas()
 precarga_sensores =[ (0,01,'Temperatura',0,0),
                      (0,02,'Presencia', 0,0),
                      (0,04,'Bateria',0,0),
-		     (3,31,'Temperatura',3,-1),
-                     (3,35,'Consumo', 3,-1),
-                     (3,34,'Bateria',3,-1),
+		     (1,11,'Temperatura',1,-1),
+                     (1,12,'Presencia', 1,-1),
+                     (1,14,'Bateria',1,-1),
 		     (8,81,'Temperatura',8,-1),
                      (8,82,'Presencia', 8,-1),
  		     (8,84,'Bateria',8,-1),
-		     (5,51,'Temperatura',5,-1),
-                     (5,52,'Presencia', 5,-1),
-                     (5,54,'Bateria',5,-1),
-		     (6,61,'Temperatura',6,-1),
-                     (6,62,'Presencia', 6,-1),
-                     (6,64,'Bateria',6,-1)]
+		     (10,101,'Temperatura',10,-1),
+                     (10,102,'Presencia',10,-1),
+                     (10,104,'Bateria',10,-1)]
 db.nuevoSensor(precarga_sensores)
 
 #- A continuacion actualizamos la cache de sensores
@@ -81,7 +78,7 @@ def nuevasMedidas():
  try:
     cadena=ser.readSerial()
     if (len(cadena)>2):
-    # print cadena
+     print cadena
      parsed_json = json.loads(cadena)
      Id=int(parsed_json['I'])
      #-Buscamos en la cache r_sensores si existe,
@@ -143,7 +140,7 @@ def cambiosServidor():
      i=4
      l1=len(datos)-1
      while i<l1:
-      s.append([id,datos[i],datos[i+1],loc])
+      s.append([id_nodo,datos[i],datos[i+1],loc,id_red])
       i=i+2
      #-Añadimos el sensor a la BD
      db.nuevoSensor(s)
@@ -170,7 +167,7 @@ def cambiosServidor():
 
       elif(acc=="RELE"):
        flag = datos[3]
-       cadena = '{\"ID\":'+ id_red + ',\"CNF\",{\"A\":'+ flag +'}}'
+       cadena = '{\"ID\":'+ id_red + ',\"CNF\",{\"A\":'+ flag +'}}\n'
 
       elif(acc=="LEDS"):
 	flag = datos[3]

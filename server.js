@@ -27,6 +27,20 @@ function handler(req, res) {
       res.end(data);
       });
       break;
+
+    case '/2': //Carga la pagina del historico de informacion.
+      fs.readFile(__dirname+'/index2.html', function(err, data) {
+      if (err) {
+        //Si hay error, mandaremos un mensaje de error 500
+        console.log(err);
+        res.writeHead(500);
+        return res.end('Error loading index2.html');
+      }
+      res.writeHead(200);
+      res.end(data);
+      });
+      break;
+
     case '/sensors': //Carga la pagina de sensores
       fs.readFile(__dirname+'/nodes.html', function(err, data) {
       if (err) {
@@ -39,6 +53,7 @@ function handler(req, res) {
       res.end(data);
       });
       break;
+
     case '/favicon.ico': //Carga el icono
      fs.readFile(__dirname+'/favicon.ico', function(err, data) {
       if (err) {
@@ -145,7 +160,37 @@ io.sockets.on('connection', function(socket) {
    });
   }
  });
-
+ socket.on('TReload', function(min,max) {
+  var dmin=new Date(min);
+  var dmax=new Date(max);
+  var f1 = dmin.toLocaleDateString().split('/');
+  var fmin=f1[2]+"/"+f1[1]+"/"+f1[0];
+  var f2 = dmax.toLocaleDateString().split('/');
+  var fmax=f2[2]+"/"+f2[1]+"/"+f2[0];
+  var hmin=dmin.toLocaleTimeString();
+  var hmax=dmax.toLocaleTimeString();
+  var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
+  db.all("SELECT Id_sensor FROM Sensores WHERE Tipo == 'Temperatura' ORDER BY Id_sensor", function (err,refs) {
+   if(err){
+       console.log('exec error: ' + err);
+   }else{ //cargamos los sensores
+      for(var i=0, l1=refs.length; i<l1;i++){
+        var r=refs[i].Id_sensor;
+        (function(r){
+	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor='"+r+"') AND (FECHA BETWEEN '"+fmin+"' AND '"+fmax+"') AND (HORA BETWEEN '"+hmin+"' AND '"+hmax+"') ORDER BY Num_registro" , function ( err2,rows) {
+            if(err) {
+              console.log('exec error: ' + err2);
+            }else {
+              //console.log(rows);
+              socket_selector(socket,rows,r,'Load2');
+            }
+          })
+        })(r);
+      }
+    }
+  });
+ db.close();
+ });
 
  //Eliminamos la conexion
  socket.on('disconnect', function() {
@@ -156,23 +201,26 @@ io.sockets.on('connection', function(socket) {
  // Visualizacion de los datos del sistema.
  if (typeof path != 'undefined'){
     switch(path){
-    case '/': //Cargamos y actualizamos las graficas.
-   info(socket);
-   break;
-  case '/sensors': //Cargamos y actualizamos los sensores.
-   sensores(socket);
-   break;
+    case '/': //Cargamos y actualizamos las graficas Tiempo real.
+      infoTreal(socket);
+    break;
+    case '/2': //Cargamos y actualizamos las graficas Historico.
+      infoHist(socket);
+    break;
+    case '/sensors': //Cargamos y actualizamos los sensores.
+     sensores(socket);
+     break;
   }
  }
 });
 
-// Funcion para cargar las graficas de medidas con los ultimos valores
+// Funcion para cargar las graficas de medidas en Tiempo real
 //Cada timerWeb milisegundos mandaremos a la gráfica un nuevo valor.
-function info(socket) {
+function infoTreal(socket) {
  var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
  var f = new Date();
  var factual=f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear();
- db.all("SELECT Id_sensor FROM Sensores WHERE Tipo != 'Bateria' ORDER BY Id_sensor", function (err,refs) {
+ db.all("SELECT Id_sensor FROM Sensores WHERE Tipo != Bateria ORDER BY Id_sensor", function (err,refs) {
     if(err){
        console.log('exec error: ' + err);
     }else{ //cargamos los sensores
@@ -208,6 +256,32 @@ function info(socket) {
  },timerWeb);
 }
 
+//Funcion para cargar las graficas del historico de medidas
+function infoHist(socket) {
+ var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
+ db.all("SELECT Id_sensor FROM Sensores WHERE Tipo != 'Bateria' ORDER BY Id_sensor", function (err,refs) {
+    if(err){
+       console.log('exec error: ' + err);
+    }else{ //cargamos los sensores
+      for(var i=0, l1=refs.length; i<l1;i++){
+        var r=refs[i].Id_sensor;
+        (function(r){
+          db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE Num_registro IN( SELECT min(Num_registro)FROM Medidas WHERE Id_sensor='"+r+"'GROUP BY FECHA)ORDER BY Num_registro" , function ( err2,rows) {
+            if(err) {
+              console.log('exec error: ' + err2);
+            }else {
+              //console.log(rows);
+              socket_selector(socket,rows,r,'Load');
+            }
+          })
+        })(r);
+      }
+    }
+  });
+ db.close();
+}
+
+
 // Funcion para enviar datos del array (rows) a los sockets en funcion
 // de la referencia (r) y aplicar la funcion (Load/Update). Ademas actualiza el
 // el ultimoregistro leido.
@@ -216,7 +290,7 @@ function socket_selector(socket,rows,r,func) {
   var datos=[];
   var l2=rows.length;
 
-  if(func=='Load'){
+  if(func=='Load' || func=="Load2"){
    //Actualizo el ultimo registro leido.
    if (l2>0){//Compruebo si hay medidas para ese sensor, si no lo inicializo
     if(lastRead <rows[(l2-1)].Num_registro)
@@ -224,7 +298,7 @@ function socket_selector(socket,rows,r,func) {
    }else{
     socket.emit(T_sensors[0][((r%10)-1)]+func,T_sensors[0][((r%10)-1)]+(parseInt(r/10)),[]);
    }//Actualizo el ultimo registro leido
-  
+ 
   }else if(func=='Update'){
     if(l2>0){
      lastRead=rows[l2-1].Num_registro;
