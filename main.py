@@ -40,13 +40,12 @@ precarga_sensores =[ (0,01,'Temperatura',0,0),
                      (8,82,'Presencia', 8,-1),
  		     (8,84,'Bateria',8,-1),
 		     (10,101,'Temperatura',10,-1),
-                     (10,102,'Presencia',10,-1),
-                     (10,104,'Bateria',10,-1)]
+                     (10,104,'Bateria',10,-1),
+                     (10,105,'Consumo',10,-1)]
 db.nuevoSensor(precarga_sensores)
 
 #- A continuacion actualizamos la cache de sensores
 #- con cargasensores()
-global r_sensores
 r_sensores=db.cargarSensores()
 
 #- Lista que guarda las medidas  para subir a la base de datos.
@@ -98,7 +97,7 @@ def nuevasMedidas():
         tS=T_sensores[x] #Tipo
       	m=int(parsed_json[tS]) #Medida
     	t=ser.time.strftime('%H:%M:%S') #Time
-    	d=ser.time.strftime('%Y/%m/%d') #Date
+    	d=ser.time.strftime('%Y/%-m/%-d') #Date
   	r_medidas.append([i,m,d,t])  			 
      else:
 	  print "Sensor no esta en la base de datos"
@@ -130,6 +129,7 @@ def cambiosServidor():
      #-Borramos el sensor de la BD
      db.borrarSensor(int(datos[1]),datos[2])
      #-Recargamos la cache
+     global r_sensores
      r_sensores=db.cargarSensores()
 
     elif(fun=="INSERT"):
@@ -145,6 +145,7 @@ def cambiosServidor():
      #-Añadimos el sensor a la BD
      db.nuevoSensor(s)
      #-Recargamos la cache
+     global r_sensores
      r_sensores=db.cargarSensores()
 
     elif(fun=="RESET"):

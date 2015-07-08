@@ -1,6 +1,12 @@
 /** Autor: Adrián Arévalo Aguirre**/ 
 var port = 8000;
-var app = require('http').createServer(handler).listen(port),
+var auth = require("http-auth");
+var basic = auth.basic({
+    realm: "Resticted Area.Only Users",
+    file: __dirname + "/node_modules/http-auth/data/users.htpasswd"
+});
+
+var app = require('http').createServer(basic,handler).listen(port),
   io = require('socket.io').listen(app),
   fs = require('fs'),
   url = require('url'),
@@ -217,17 +223,17 @@ io.sockets.on('connection', function(socket) {
 // Funcion para cargar las graficas de medidas en Tiempo real
 //Cada timerWeb milisegundos mandaremos a la gráfica un nuevo valor.
 function infoTreal(socket) {
+  var f = new Date();
+  var factual=f.getFullYear() + "/" + (f.getMonth() +1) + "/" + f.getDate();
  var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
- var f = new Date();
- var factual=f.getDate() + "/" + (f.getMonth() +1) + "/" + f.getFullYear();
- db.all("SELECT Id_sensor FROM Sensores WHERE Tipo != Bateria ORDER BY Id_sensor", function (err,refs) {
+ db.all("SELECT Id_sensor FROM Sensores WHERE Tipo != 'Bateria' ORDER BY Id_sensor", function (err,refs) {
     if(err){
        console.log('exec error: ' + err);
     }else{ //cargamos los sensores
       for(var i=0, l1=refs.length; i<l1;i++){
         var r=refs[i].Id_sensor;
         (function(r){
-	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE Id_sensor='"+r+"' AND FECHA= '"+factual+"' ORDER BY Num_registro" , function ( err2,rows) {
+	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor='"+r+"') AND (FECHA='"+factual+"') ORDER BY Num_registro" , function ( err2,rows) {
             if(err) {
               console.log('exec error: ' + err2);
             }else {
@@ -357,22 +363,26 @@ function sensores(socket) {
   var tipos=""; //cadena con los tipos de sensores del nodo
   var bat=0;
   var datos=[];
-  db.all("SELECT Id_nodo,Id_sensor,Localizacion,Id_red FROM Sensores ORDER BY Id_sensor",function (err,referencias){
+  db.all("SELECT Id_nodo,Id_sensor,Localizacion,Id_red FROM Sensores ORDER BY Id_sensor ASC",function (err,referencias){
     if(err){
        console.log('exec error: ' + err);
     }else{//cargamos los sensores
       var refs=referencias;
-      for(var i=0, l1=refs.length; i<l1;i++){
+      for(i=0,l1=refs.length; i<l1;i++){
        var id=refs[i].Id_nodo;
        if(i==l1-1){idS=0;}
        else{idS=refs[i+1].Id_nodo;}
        var r=(refs[i].Id_sensor)%10;
-      (function(refs,r,i,id,idS){
-         db.all("SELECT Valor FROM Medidas WHERE Id_sensor='"+refs[i].Id_sensor+"'AND Id_sensor%10 ==4  ORDER BY Fecha, Hora LIMIT 1",function (err2,rows) {
+      (function(refs,r,i){
+       db.all("SELECT Valor FROM Medidas WHERE Id_sensor='"+refs[i].Id_sensor+"'AND Id_sensor%10 ==4  ORDER BY Fecha, Hora LIMIT 1",function (err2,rows) {
              if(err2) {
               console.log('exec error: ' + err2);
              }else {
+        	var id=refs[i].Id_nodo;
+                if(i==l1-1){idS=0;}
+                else{idS=refs[i+1].Id_nodo;}
 		tipos=tipos+T_sensors[1][(r-1)]+", ";
+		console.log(i+"_"+id+"_"+idS);
 		if(rows.length){
    	         bat=rows[0].Valor/1000;
 	        }
@@ -383,10 +393,10 @@ function sensores(socket) {
               	tipos="";
 		bat=0;
                 }
-	     if(i==l1-1){socket.emit('SLoad',datos);}
+                if(i==l1-1){socket.emit('SLoad',datos);}
  	    }
            });
-	})(refs,r,i,id,idS);
+      })(refs,r,i);
      }
     }
   });
