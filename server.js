@@ -1,12 +1,13 @@
 /** Autor: Adrián Arévalo Aguirre**/ 
 var port = 8000;
 var auth = require("http-auth");
-var basic = auth.basic({
-    realm: "Resticted Area.Only Users",
-    file: __dirname + "/node_modules/http-auth/data/users.htpasswd"
+var digest = auth.digest({
+    realm: "Private area",
+    file: __dirname + "/htpass",
+    msg401: "ERROR 401: Unautorized Access:Para acceso sin privilegios de admin probar weather/weather"
 });
 
-var app = require('http').createServer(basic,handler).listen(port),
+var app = require('http').createServer(digest,handler).listen(port),
   io = require('socket.io').listen(app),
   fs = require('fs'),
   url = require('url'),
@@ -20,6 +21,7 @@ var T_sensors=[['T','P','L','B','C','A','H'],['Temp','Pres','Lum','Bat','Cons','
 //Si todo va bien al abrir el navegador, cargaremos el html adecuado.
 function handler(req, res) {
  path = url.parse(req.url).pathname;
+ user = req.user;
   switch(path) {
     case '/': //Carga la pagina principal de informacion.
       fs.readFile(__dirname+'/index.html', function(err, data) {
@@ -35,7 +37,7 @@ function handler(req, res) {
       break;
 
     case '/2': //Carga la pagina del historico de informacion.
-      fs.readFile(__dirname+'/index2.html', function(err, data) {
+      fs.readFile(__dirname+'/index2.html',function(err, data) {
       if (err) {
         //Si hay error, mandaremos un mensaje de error 500
         console.log(err);
@@ -48,7 +50,9 @@ function handler(req, res) {
       break;
 
     case '/sensors': //Carga la pagina de sensores
-      fs.readFile(__dirname+'/nodes.html', function(err, data) {
+      var p1='/nodes2.html'; //Cargo la pagina sin opciones de contol
+      if(user === 'foo'){p1='/nodes.html'} //Cargo la de admin
+      fs.readFile(__dirname+p1, function(err, data) {
       if (err) {
         //Si hay error, mandaremos un mensaje de error 500
         console.log(err);
@@ -359,46 +363,44 @@ function socket_selector(socket,rows,r,func) {
 
 function sensores(socket) {
   var db= new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
-  var idS=0; //Id del siguiente leido   
+  var idA=0; //Id del siguiente leido   
   var tipos=""; //cadena con los tipos de sensores del nodo
-  var bat=0;
+  var loc=0;
+  var id_red=0;
+  var id=0;
+  var bat=[];
   var datos=[];
-  db.all("SELECT Id_nodo,Id_sensor,Localizacion,Id_red FROM Sensores ORDER BY Id_sensor ASC",function (err,referencias){
+  db.each("SELECT Id_nodo,Id_sensor,Localizacion,Id_red FROM Sensores ORDER BY Id_sensor ASC",function(err,referencias){
     if(err){
        console.log('exec error: ' + err);
     }else{//cargamos los sensores
-      var refs=referencias;
-      for(i=0,l1=refs.length; i<l1;i++){
-       var id=refs[i].Id_nodo;
-       if(i==l1-1){idS=0;}
-       else{idS=refs[i+1].Id_nodo;}
-       var r=(refs[i].Id_sensor)%10;
-      (function(refs,r,i){
-       db.all("SELECT Valor FROM Medidas WHERE Id_sensor='"+refs[i].Id_sensor+"'AND Id_sensor%10 ==4  ORDER BY Fecha, Hora LIMIT 1",function (err2,rows) {
-             if(err2) {
-              console.log('exec error: ' + err2);
-             }else {
-        	var id=refs[i].Id_nodo;
-                if(i==l1-1){idS=0;}
-                else{idS=refs[i+1].Id_nodo;}
-		tipos=tipos+T_sensors[1][(r-1)]+", ";
-		console.log(i+"_"+id+"_"+idS);
-		if(rows.length){
-   	         bat=rows[0].Valor/1000;
-	        }
-              	if( idS!=id){ //Hemos terminado el nodo
-              	var loc =refs[i].Localizacion;
-              	var id_red=refs[i].Id_red;
-              	datos.push([id,tipos,loc,bat,id_red,null]);
-              	tipos="";
-		bat=0;
-                }
-                if(i==l1-1){socket.emit('SLoad',datos);}
- 	    }
-           });
-      })(refs,r,i);
-     }
-    }
+       var id=referencias.Id_nodo;
+       if( idA!=id){ //Nuevo nodo
+       datos.push([idA,tipos,loc,null,id_red,null]);
+       idA=id;//Actualizamos el idAnterior
+       tipos="";
+   }
+      loc =referencias.Localizacion;
+      id_red=referencias.Id_red;
+      var r=(referencias.Id_sensor)%10;
+      tipos=tipos+T_sensors[1][(r-1)]+", ";
+    } 
+  },function(error,nrows){
+    datos.push([idA,tipos,loc,null,id_red,null]);
+    for(j=0,l2=datos.length;j<l2;j++){
+     var id_sensor=(datos[j][0])*10+4;
+    (function(id_sensor,j){
+     db.all("SELECT Valor FROM Medidas WHERE Id_sensor='"+id_sensor+"' ORDER BY Fecha, Hora LIMIT 1",function (err2,rows) {
+      if(err2) {
+        console.log('exec error: ' + err2);
+      }else {
+        if(rows.length){bat.push(rows[0].Valor/1000);}
+	else{bat.push(0);}
+	if(j==l2-1){socket.emit('SLoad',datos,bat)}
+       }
+    });
+  })(id_sensor,j);
+   }
   });
-  db.close();
+ db.close();
 }

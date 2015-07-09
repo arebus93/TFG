@@ -272,9 +272,16 @@
      });
 
      //Carga de la Tabla
-     socket.on('SLoad', function (data) {
+     socket.on('SLoad', function (data,bat) {
+      if(data.length==bat.length){
+	console.log('OK')
+       for(i=0,l1=data.length;l1>i;i++){
+     	data[i][3]=bat[i];
+	console.log(data[i]);
+       }
        table.rows.add(data);
        table.draw();
+      }else{table.rows.add(data).draw();}
      });
 
     //Seleccion de filas
@@ -328,7 +335,9 @@
      $('#buttonReleED').click( function () {
         var rowData = table.row('.warning').data();
         if(typeof rowData === 'undefined'){
-          $('#SelMessage').show();
+	$('#ReleMessage').hide()          
+	$('#SelMessage').show();
+          
         }else{
           $('#SelMessage').hide();
 	  if(table.$('tr.selected').find("td").eq(1).text().indexOf("Cons") != -1){
@@ -354,7 +363,7 @@
      $('#buttonLeds').click( function () {
        var rowData = table.row('.warning').data();
         if(typeof rowData === 'undefined'){
-          $('#SelMessage').show();
+         $('#SelMessage').show();
         }else{
           $('#SelMessage').hide();
            var f=table.$('tr.selected').find("td").eq(5).children('span:first').css('display');

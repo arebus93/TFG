@@ -14,6 +14,7 @@ def readSerial():
 
 def writeSerial(cadena):
  s.write(cadena)
+ s.write(23)
  return
 
 #--Configuracion del modulo HC-11 con comandos AT
