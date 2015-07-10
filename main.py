@@ -30,18 +30,18 @@ ser.initSerial(Puerto,Vel,Timeout)
 db.crearTablas()
 
 #- Precarga de sensores
-precarga_sensores =[ (0,01,'Temperatura',0,0),
-                     (0,02,'Presencia', 0,0),
-                     (0,04,'Bateria',0,0),
-		     (1,11,'Temperatura',1,-1),
-                     (1,12,'Presencia', 1,-1),
-                     (1,14,'Bateria',1,-1),
-		     (8,81,'Temperatura',8,-1),
-                     (8,82,'Presencia', 8,-1),
- 		     (8,84,'Bateria',8,-1),
-		     (10,101,'Temperatura',10,-1),
-                     (10,104,'Bateria',10,-1),
-                     (10,105,'Consumo',10,-1)]
+precarga_sensores =[ (0,01,'Temperatura',0,0),(0,02,'Presencia',0,0),(0,04,'Bateria',0,0),
+		     (1,11,'Temperatura',1,-1),(1,12,'Presencia',1,-1),(1,14,'Bateria',1,-1),
+		     (2,21,'Temperatura',2,-1),(2,22,'Presencia',2,-1),(2,24,'Bateria',2,-1),
+		     (3,31,'Temperatura',3,-1),(3,32,'Presencia',3,-1),(3,34,'Bateria',3,-1),
+                     (4,41,'Temperatura',4,-1),(4,42,'Presencia',4,-1),(4,44,'Bateria',4,-1),
+                     (5,51,'Temperatura',5,-1),(5,52,'Presencia',5,-1),(5,54,'Bateria',5,-1),
+                     (6,61,'Temperatura',6,-1),(6,62,'Presencia',6,-1),(6,64,'Bateria',6,-1),
+                     (7,71,'Temperatura',7,-1),(7,72,'Presencia',7,-1),(7,74,'Bateria',7,-1),
+                     (8,81,'Temperatura',8,-1),(8,82,'Presencia',8,-1),(8,84,'Bateria',8,-1),
+                     (9,91,'Temperatura',9,-1),(9,92,'Presencia',9,-1),(9,94,'Bateria',9,-1),
+		     (10,101,'Temperatura',10,-1),(10,104,'Bateria',10,-1),(10,105,'Consumo',10,-1),
+		     (11,111,'Temperatura',11,-1),(11,114,'Bateria',11,-1),(11,115,'Consumo',11,-1)]
 db.nuevoSensor(precarga_sensores)
 
 #- A continuacion actualizamos la cache de sensores

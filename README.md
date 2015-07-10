@@ -21,7 +21,7 @@ This project has been developed by [Adrián Arévalo Aguirre](http://github.com/
 $ sudo apt-get update 
 $ sudo apt-get upgrade
 ~~~
-**STEP 2: Instalacion Node v0.10.2**
+**STEP 2: Instalacion Node v0.10.24**
 ~~~
 $ cd
 $ sudo wget http://nodejs.org/dist/v0.10.24/node-v0.10.24-linux-arm-pi.tar.gz
@@ -35,16 +35,19 @@ node -v
 **STEP 3: Instalar GIT y clonar el repositorio**
 ~~~
 $ sudo apt-get install git
-
-$ git clone https://github.com/arebus93/TFG.git
 ~~~
-**STEP 4:**
+Clonar el repositorio remoto en la carpeta que queramos
+~~~
+$ cd /media/Transcend/DomoB105/
+$ sudo git clone https://github.com/arebus93/TFG.git
+~~~
+**STEP 4: Entrar en la carpeta TFG, donde esta el codigo del proyecto**
 ~~~
 $ cd TFG
 ~~~
 **STEP 5: Instalar las dependencias**
 ~~~
-$ npm install
+$ sudo npm install
 ~~~
 If everything is OK, go to step 6. If it throws an error:
 ~~~

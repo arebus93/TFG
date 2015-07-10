@@ -2,7 +2,7 @@
 var port = 8000;
 var auth = require("http-auth");
 var digest = auth.digest({
-    realm: "Private area",
+    realm: "B105 users only",
     file: __dirname + "/htpass",
     msg401: "ERROR 401: Unautorized Access:Para acceso sin privilegios de admin probar weather/weather"
 });
@@ -51,7 +51,7 @@ function handler(req, res) {
 
     case '/sensors': //Carga la pagina de sensores
       var p1='/nodes2.html'; //Cargo la pagina sin opciones de contol
-      if(user === 'foo'){p1='/nodes.html'} //Cargo la de admin
+      if(user === 'admin'){p1='/nodes.html'} //Cargo la de admin
       fs.readFile(__dirname+p1, function(err, data) {
       if (err) {
         //Si hay error, mandaremos un mensaje de error 500
