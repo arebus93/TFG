@@ -74,6 +74,17 @@ function handler(req, res) {
       res.end(data);
       });
       break;
+    case '/distrNodos.jpg': //Carga la imagen
+     fs.readFile(__dirname+'/distrNodos.jpg', function(err, data) {
+      if (err) {
+       //Si hay error,lo sacamos por consola
+       console.log(err);
+      }
+      res.writeHead(200, {'Content-Type': 'image/x-icon'});
+      res.end(data);
+      });
+      break;
+
 
     default: //No existe el path o no es accesible
       console.log('No existe el path'+path)
@@ -230,7 +241,7 @@ function infoTreal(socket) {
   var f = new Date();
   var factual=f.getFullYear() + "/" + (f.getMonth() +1) + "/" + f.getDate();
  var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
- db.all("SELECT Id_sensor FROM Sensores WHERE Tipo != 'Bateria' ORDER BY Id_sensor", function (err,refs) {
+ db.all("SELECT Id_sensor FROM Sensores ORDER BY Id_sensor", function (err,refs) {
     if(err){
        console.log('exec error: ' + err);
     }else{ //cargamos los sensores
@@ -254,7 +265,7 @@ function infoTreal(socket) {
  //Actualizacion de datos en la pagina Web
  setInterval(function(){
  var db= new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
-  db.all("SELECT Num_registro, Id_sensor, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor%10 != 4)AND FECHA='"+factual+"' AND (Num_registro>'" + lastRead + "') ORDER BY Num_registro" , function ( err2,rows) {
+  db.all("SELECT Num_registro, Id_sensor, Valor, Fecha, Hora FROM Medidas WHERE FECHA='"+factual+"' AND (Num_registro>'" + lastRead + "') ORDER BY Num_registro" , function ( err2,rows) {
     if(err2) {
       console.log('exec error: ' + err2);
     }else {
@@ -334,6 +345,11 @@ function socket_selector(socket,rows,r,func) {
         var lum=rows[j].Valor;
         var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
         datos.push([date,lum]);
+      break;
+      case 4: //Bateria
+        var bat=rows[j].Valor;
+        var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
+        datos.push([date,bat]);
       break;
       case 5: //Consumo
         var cons=parseFloat(rows[j].Valor);

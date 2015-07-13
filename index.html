@@ -66,13 +66,13 @@
       </div>
 
       <div class="col-lg-6">
-        <div class="container" id="chartLum" style="width:100%; height:300px;"></div>
+        <div class="container" id="chartBat" style="width:100%; height:300px;"></div>
       </div>
     </div>
 
     <div class="row marketing">
       <div class="col-lg-6">
-        <div class="container" id="chartAtm" style="width:100%; height:300px;"></div>
+        <div class="container" id="chartLum" style="width:100%; height:300px;"></div>
       </div>
 
       <div class="col-lg-6">
@@ -80,6 +80,11 @@
       </div>
     </div>
 
+    <div class="row marketing">
+      <div class="col-lg-6">
+        <div class="container" id="chartAtm" style="width:100%; height:300px;"></div>
+      </div>
+    </div>
   </div>
 
     <!-- Comienza el Javascript -->
@@ -105,8 +110,7 @@
             renderTo: 'chartTemp', 
         events: {
                 load: function() {
-                    
-                  //Cuando cargo la grafica por primera vez, cago las
+                 //Cuando cargo la grafica por primera vez, cago las
               // medidas alamcenadas de cada sensor
               socket.on('TLoad', function (id, datos) {
                    chartTemp.addSeries({
@@ -128,10 +132,19 @@
         title: {
             text: 'Temperatura'
         },
+	rangeSelector :{
+            buttons: [
+		{type: 'minute',count: 1,text: '1min'},
+		{type: 'minute',count: 5,text: '5min'},
+		{type: 'hour',count: 1,text: '1h'},
+		{type: 'hour',count: 2,text: '2h'},
+		{type: 'all',text: 'All'}],
+ 	        inputEnabled: true,
+                selected : 4 // all
+        },
         xAxis: {
             type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
+            maxZoom: 60 * 1000 //one minute
         },
         yAxis: {
             minPadding: 0.2,
@@ -177,10 +190,19 @@
         title: {
             text: 'Presencia/Ausencia'
         },
+        rangeSelector :{
+            buttons: [
+                {type: 'minute',count: 1,text: '1min'},
+                {type: 'minute',count: 5,text: '5min'},
+                {type: 'hour',count: 1,text: '1h'},
+                {type: 'hour',count: 2,text: '2h'},
+                {type: 'all',text: 'All'}],
+                inputEnabled: true,
+                selected : 4 // all
+        },
         xAxis: {
             type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
+            maxZoom: 60 * 1000
         },
         yAxis: {
             minPadding: 0.2,
@@ -219,23 +241,28 @@
               }
             }
         },
-        rangeSelector : {
-            selected : 1
-        },
         title: {
             text: 'Consumo'
         },
+        rangeSelector :{
+            buttons: [
+                {type: 'minute',count: 1,text: '1min'},
+                {type: 'minute',count: 5,text: '5min'},
+                {type: 'hour',count: 1,text: '1h'},
+                {type: 'hour',count: 2,text: '2h'},
+                {type: 'all',text: 'All'}],
+                inputEnabled: true,
+                selected : 4 // all
+        },
         xAxis: {
             type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
+            maxZoom: 60 * 1000
         },
         yAxis: {
             minPadding: 0.2,
             maxPadding: 0.2
         },
         tooltip: {
-                valueDecimals: 0,
                 valueSuffix: 'W'
         },
         legend: {
@@ -245,10 +272,76 @@
                 enabled: true
         },
      });
+   //Grafica de Bateria
+    chartBat = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartBat',
+            events: {
+                load: function() {
+                  //Cuando cargo la grafica por primera vez, cago las
+                  // medidas alamcenadas de cada sensor
+                  socket.on('BLoad', function (id, datos) {
+                   chartBat.addSeries({
+                    name: id,
+                    id:id,
+                    data:datos,
+                    type:'spline'
+                  },false);
+                  chartAtm.redraw();
+                 });
+
+                 // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
+                 socket.on('BUpdate', function (id, datos) {
+                  var series=chartBat.get(id);
+                  series.addPoint(datos[0],true,true);
+                 });
+               }
+            }
+        },
+        title: {
+            text: 'Bateria'
+        },
+	rangeSelector :{
+            buttons: [
+                {type: 'minute',count: 1,text: '1min'},
+                {type: 'minute',count: 5,text: '5min'},
+                {type: 'hour',count: 1,text: '1h'},
+                {type: 'hour',count: 2,text: '2h'},
+                {type: 'all',text: 'All'}],
+                inputEnabled: true,
+                selected : 4 // all
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150,
+            maxZoom: 60 * 1000
+        },
+        yAxis: {
+  	   plotLines: [{
+             value: 2.5,
+              color: 'red',
+              dashStyle: 'shortdash',
+              width: 1,
+           }],
+            minPadding: 0.2,
+            maxPadding: 0.2
+        },
+        tooltip: {
+		valueDecimals: 3,
+                valueSuffix: 'mW'
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+
    //Grafica de Luminosidad
     chartLum = new Highcharts.StockChart({
         chart: {
-            renderTo: 'chartLum', 
+            renderTo: 'chartLum',
             events: {
                 load: function() {
                  //Cuando cargo la grafica por primera vez, cago las
@@ -260,12 +353,12 @@
                     data:datos,
                     type:'spline'
                   },false);
-                  chartLum.redraw();        
+                  chartLum.redraw();
                  });
-            
+
                 // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
                 socket.on('LUpdate', function (id, datos) {
-                  var series=chartLum.get(id);  
+                  var series=chartLum.get(id);
                   series.addPoint(datos[0],true,true);
                 });
               }
@@ -274,10 +367,20 @@
         title: {
             text: 'Luminosidad'
         },
+        rangeSelector :{
+            buttons: [
+                {type: 'minute',count: 1,text: '1min'},
+                {type: 'minute',count: 5,text: '5min'},
+                {type: 'hour',count: 1,text: '1h'},
+                {type: 'hour',count: 2,text: '2h'},
+                {type: 'all',text: 'All'}],
+                inputEnabled: true,
+		selected : 4 // all
+        },
         xAxis: {
             type: 'datetime',
             tickPixelInterval: 150,
-            maxZoom: 20 * 1000
+            maxZoom: 60 * 1000
         },
         yAxis: {
             minPadding: 0.2,
@@ -293,6 +396,7 @@
                 enabled: true
         },
      });
+
   //Grafica de Presion
     chartAtm = new Highcharts.StockChart({
         chart: {
@@ -322,10 +426,19 @@
         title: {
             text: 'Presión Atmosférica'
         },
+        rangeSelector :{
+            buttons: [
+                {type: 'minute',count: 1,text: '1M'},
+                {type: 'minute',count: 5,text: '5M'},
+                {type: 'hour',count: 1,text: '1H'},
+                {type: 'hour',count: 2,text: '2H'},
+                {type: 'all',text: 'All'}],
+                inputEnabled: true,
+                selected : 4 // all
+        },
         xAxis: {
             type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
+            maxZoom: 60 * 1000
         },
         yAxis: {
             minPadding: 0.2,
@@ -370,10 +483,19 @@
         title: {
             text: 'Humedad relativa'
         },
+        rangeSelector :{
+            buttons: [
+                {type: 'minute',count: 1,text: '1M'},
+                {type: 'minute',count: 5,text: '5M'},
+                {type: 'hour',count: 1,text: '1H'},
+                {type: 'hour',count: 2,text: '2H'},
+                {type: 'all',text: 'All'}],
+                inputEnabled: true,
+                selected : 4 // all
+        },
         xAxis: {
             type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
+            maxZoom: 60 * 1000
         },
         yAxis: {
             minPadding: 0.2,

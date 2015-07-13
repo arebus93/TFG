@@ -178,7 +178,7 @@ def cambiosServidor():
 
       print cadena
       #-Enviamos el comando de SET a traves de la UART
-      ser.writeSerial(cadena)
+      ser.writeSerial(cadena+chr(23))
 
     else:
      print"Opcion del fichero exchnge no contemplada"
