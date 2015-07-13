@@ -347,7 +347,7 @@ function socket_selector(socket,rows,r,func) {
         datos.push([date,lum]);
       break;
       case 4: //Bateria
-        var bat=rows[j].Valor;
+        var bat=parseFloat(rows[j].Valor)/1000;
         var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
         datos.push([date,bat]);
       break;
