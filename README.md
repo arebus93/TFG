@@ -12,7 +12,7 @@ This project has been developed by [Adrián Arévalo Aguirre](http://github.com/
 #### Contributors
 
 # Screenshot
-//![Raspberry Pi Monitoring Panel](https://drive.google.com/file/d/0BwUx-1rpEhrORE5SUTc5VG53TE0/view?usp=sharing "Raspberry Pi Monitoring Panel")
+![Raspberry Pi Monitoring Panel](https://drive.google.com/file/d/0BwUx-1rpEhrORE5SUTc5VG53TE0/view?usp=sharing "Raspberry Pi Monitoring Panel")
 
 # How to install
 
