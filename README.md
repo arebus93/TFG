@@ -10,11 +10,10 @@ This is a very useful web app for checking the status not only of the B105 lab b
 This project has been developed by [Adrián Arévalo Aguirre](http://github.com/arebus93 "Adrián Arévalo Aguirre").
 
 # Screenshots
-![Graficas de Medidas en Tiempo Real](http://i1.wp.com/geekytheory.com/wp-content/uploads/2013/12/panel-monitorizacion-raspberry-pi-node-js.png "Graficas de Medidas en Tiempo Real")
-
-[Graficas de Medidas en Tiempo Real](http://i1.wp.com/geekytheory.com/wp-content/uploads/2013/12/panel-monitorizacion-raspberry//-pi-node-js.png "Graficas en Tiempo Real")
-
+![Graficas de Medidas en Tiempo Real](http://i1.wp.com/geekytheory.com/wp-content/uploads/2013/12/panel-monitorizacion-raspberry//-pi-node-js.png "Graficas en Tiempo Real")
 ![Graficas del Historico de medidas](http://i1.wp.com/geekytheory.com/wp-content/uploads/2013/12/panel-monitorizacion-raspberry//-pi-node-js.png "Graficas del Historico de medidas")
+![Panel de Control](https://drive.google.com/drive/folders/0BwUx-1rpEhrOfnNmRkZyQm1JRjRDdlRzVGxBd3pSb0M5VDRMei1Pb3JYNE5seE85eWp1aWs "Panel de Control")
+
 
 # How to install
 

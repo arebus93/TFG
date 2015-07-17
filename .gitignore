@@ -31,4 +31,5 @@ results
 
 npm-debug.log
 node_modules
-
+serie.pyc
+database.pyc
