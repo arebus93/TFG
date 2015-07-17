@@ -184,12 +184,11 @@ io.sockets.on('connection', function(socket) {
  socket.on('TReload', function(min,max) {
   var dmin=new Date(min);
   var dmax=new Date(max);
-  var f1 = dmin.toLocaleDateString().split('/');
-  var fmin=f1[2]+"/"+f1[1]+"/"+f1[0];
-  var f2 = dmax.toLocaleDateString().split('/');
-  var fmax=f2[2]+"/"+f2[1]+"/"+f2[0];
-  var hmin=dmin.toLocaleTimeString();
-  var hmax=dmax.toLocaleTimeString();
+  var fmin=dmin.getFullYear()+"/"+(dmin.getMonth()+1)+"/"+dmin.getDate();
+  var fmax=dmax.getFullYear()+"/"+(dmax.getMonth()+1)+"/"+dmax.getDate();
+  #var hmin=dmin.toLocaleTimeString();
+  #var hmax=dmax.toLocaleTimeString();
+  console.log(fmin,fmax,hmin,hmax);
   var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
   db.all("SELECT Id_sensor FROM Sensores WHERE Tipo == 'Temperatura' ORDER BY Id_sensor", function (err,refs) {
    if(err){
@@ -198,11 +197,11 @@ io.sockets.on('connection', function(socket) {
       for(var i=0, l1=refs.length; i<l1;i++){
         var r=refs[i].Id_sensor;
         (function(r){
-	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor='"+r+"') AND (FECHA BETWEEN '"+fmin+"' AND '"+fmax+"') AND (HORA BETWEEN '"+hmin+"' AND '"+hmax+"') ORDER BY Num_registro" , function ( err2,rows) {
+	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor='"+r+"') AND FECHA BETWEEN '"+fmin+"' AND '"+fmax+"' ORDER BY Num_registro" , function ( err2,rows) {
             if(err) {
               console.log('exec error: ' + err2);
             }else {
-              //console.log(rows);
+              console.log(rows+"_"+r);
               socket_selector(socket,rows,r,'Load2');
             }
           })
