@@ -107,7 +107,8 @@
     //Grafica de Temperatura
     chartTemp = new Highcharts.StockChart({
         chart: {
-            renderTo: 'chartTemp', 
+            renderTo: 'chartTemp',
+	    zoomType: 'x', 
         events: {
                 load: function() {
                  //Cuando cargo la grafica por primera vez, cago las
@@ -132,6 +133,12 @@
         title: {
             text: 'Temperatura'
         },
+ 	navigator : {
+            enabled : false
+        },
+	scrollbar : {
+                enabled : false
+        },
 	rangeSelector :{
             buttons: [
 		{type: 'minute',count: 1,text: '1min'},
@@ -139,7 +146,7 @@
 		{type: 'hour',count: 1,text: '1h'},
 		{type: 'hour',count: 2,text: '2h'},
 		{type: 'all',text: 'All'}],
- 	        inputEnabled: true,
+ 	        inputEnabled: false,
                 selected : 4 // all
         },
         xAxis: {
@@ -164,7 +171,8 @@
    //Grafica de Presencia
     chartPres = new Highcharts.StockChart({
         chart: {
-            renderTo: 'chartPres', 
+            renderTo: 'chartPres',
+	    zoomType: 'x',
             events: {
                 load: function() {
              //Cuando cargo la grafica por primera vez, cago las
@@ -190,6 +198,12 @@
         title: {
             text: 'Presencia/Ausencia'
         },
+        navigator : {
+            enabled : false
+        },
+        scrollbar : {
+                enabled : false
+        },
         rangeSelector :{
             buttons: [
                 {type: 'minute',count: 1,text: '1min'},
@@ -197,7 +211,7 @@
                 {type: 'hour',count: 1,text: '1h'},
                 {type: 'hour',count: 2,text: '2h'},
                 {type: 'all',text: 'All'}],
-                inputEnabled: true,
+                inputEnabled: false,
                 selected : 4 // all
         },
         xAxis: {
@@ -219,6 +233,7 @@
     chartCons = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartCons', 
+	    zoomType: 'x',
             events: {
                 load: function() {
                 //Cuando cargo la grafica por primera vez, cago las
@@ -244,6 +259,12 @@
         title: {
             text: 'Consumo'
         },
+        navigator : {
+            enabled : false
+        },
+        scrollbar : {
+                enabled : false
+        },
         rangeSelector :{
             buttons: [
                 {type: 'minute',count: 1,text: '1min'},
@@ -251,7 +272,7 @@
                 {type: 'hour',count: 1,text: '1h'},
                 {type: 'hour',count: 2,text: '2h'},
                 {type: 'all',text: 'All'}],
-                inputEnabled: true,
+                inputEnabled: false,
                 selected : 4 // all
         },
         xAxis: {
@@ -276,6 +297,7 @@
     chartBat = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartBat',
+	    zoomType: 'x',
             events: {
                 load: function() {
                   //Cuando cargo la grafica por primera vez, cago las
@@ -287,7 +309,7 @@
                     data:datos,
                     type:'spline'
                   },false);
-                  chartAtm.redraw();
+                  chartBat.redraw();
                  });
 
                  // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
@@ -301,6 +323,12 @@
         title: {
             text: 'Bateria'
         },
+        navigator : {
+            enabled : false
+        },
+        scrollbar : {
+                enabled : false
+        },
 	rangeSelector :{
             buttons: [
                 {type: 'minute',count: 1,text: '1min'},
@@ -308,7 +336,7 @@
                 {type: 'hour',count: 1,text: '1h'},
                 {type: 'hour',count: 2,text: '2h'},
                 {type: 'all',text: 'All'}],
-                inputEnabled: true,
+                inputEnabled: false,
                 selected : 4 // all
         },
         xAxis: {
@@ -328,7 +356,7 @@
         },
         tooltip: {
 		valueDecimals: 3,
-                valueSuffix: 'W'
+                valueSuffix: 'V'
         },
         legend: {
                 enabled: true
@@ -342,6 +370,7 @@
     chartLum = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartLum',
+	    zoomType: 'x',
             events: {
                 load: function() {
                  //Cuando cargo la grafica por primera vez, cago las
@@ -367,6 +396,12 @@
         title: {
             text: 'Luminosidad'
         },
+        navigator : {
+            enabled : false
+        },
+        scrollbar : {
+                enabled : false
+        },
         rangeSelector :{
             buttons: [
                 {type: 'minute',count: 1,text: '1min'},
@@ -374,7 +409,7 @@
                 {type: 'hour',count: 1,text: '1h'},
                 {type: 'hour',count: 2,text: '2h'},
                 {type: 'all',text: 'All'}],
-                inputEnabled: true,
+                inputEnabled: false,
 		selected : 4 // all
         },
         xAxis: {
@@ -401,6 +436,7 @@
     chartAtm = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartAtm', 
+	    zoomType: 'x',
             events: {
                 load: function() {
                   //Cuando cargo la grafica por primera vez, cago las
@@ -426,6 +462,12 @@
         title: {
             text: 'Presión Atmosférica'
         },
+        navigator : {
+            enabled : false
+        },
+        scrollbar : {
+                enabled : false
+        },
         rangeSelector :{
             buttons: [
                 {type: 'minute',count: 1,text: '1M'},
@@ -433,7 +475,7 @@
                 {type: 'hour',count: 1,text: '1H'},
                 {type: 'hour',count: 2,text: '2H'},
                 {type: 'all',text: 'All'}],
-                inputEnabled: true,
+                inputEnabled: false,
                 selected : 4 // all
         },
         xAxis: {
@@ -458,6 +500,7 @@
     chartHum = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartHum', 
+	    zoomType: 'x',
             events: {
                 load: function() {
                 //Cuando cargo la grafica por primera vez, cago las
@@ -483,6 +526,12 @@
         title: {
             text: 'Humedad relativa'
         },
+        navigator : {
+            enabled : false
+        },
+        scrollbar : {
+                enabled : false
+        },
         rangeSelector :{
             buttons: [
                 {type: 'minute',count: 1,text: '1M'},
@@ -490,7 +539,7 @@
                 {type: 'hour',count: 1,text: '1H'},
                 {type: 'hour',count: 2,text: '2H'},
                 {type: 'all',text: 'All'}],
-                inputEnabled: true,
+                inputEnabled: false,
                 selected : 4 // all
         },
         xAxis: {

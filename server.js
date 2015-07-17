@@ -309,7 +309,8 @@ function infoHist(socket) {
 
 function socket_selector(socket,rows,r,func) {
   var datos=[];
-  var l2=rows.length;
+  if (typeof(rows) === "undefined") {var l2=0;}
+  else {var l2=rows.length;}
 
   if(func=='Load' || func=="Load2"){
    //Actualizo el ultimo registro leido.
