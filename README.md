@@ -14,7 +14,7 @@ This project has been developed by [Adrián Arévalo Aguirre](http://github.com/
 
 ![Graficas del Historico de medidas](https://lh3.googleusercontent.com/ZFstztTTSuhuwr5KD7SuhfBqKgi8FGeFtcFXYNfEBJZfChT3wIc6OXHSfBQUJY2jcuqfEaSsHxdBdhs=w760-h583-rw "Graficas del Historico de medidas")
 
-![Panel de Control](https://lh4.googleusercontent.com/niQ1drIoGrp2Jlf2xex3RoQM3YQiVlJM7OUJxknd-_VhfgtkPPSVjF6xifEky_5sIsBSjv0uiDtQnjg=w1576-h655-rw "Panel de Control")
+![Panel de Control](https://lh5.googleusercontent.com/GcdcxUYA-r9fQW4jMZ2U8zziWyosM0SeiFV2L7Z-3xSPzwtspVUMWEyO0RlCIsg2ukG0kU25cZB4gig=w1576-h611-rw "Panel de Control")
 
 
 # How to install
