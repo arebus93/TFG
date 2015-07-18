@@ -12,7 +12,7 @@ This project has been developed by [Adrián Arévalo Aguirre](http://github.com/
 # Screenshots
 ![Graficas de Medidas en Tiempo Real](https://lh5.googleusercontent.com/9Anm1pYVpjI5nXiFLSP7Vm0D1CMH56-IJF0RTCng_uFDPEWISOOHcIIZiH-2L_aU6hSUAjAtOspIsc4=w1576-h611-rw "Graficas en Tiempo Real")
 
-![Graficas del Historico de medidas](https://lh4.googleusercontent.com/uKd-IYIRT_ut5oK7wORFvCTtYl1xYKk8VFnjSS9GxArHRbeY0amusF0_TPj4EWvOpi48IHkCx9uYMWo=w1576-h655-rw "Graficas del Historico de medidas")
+![Graficas del Historico de medidas](https://lh5.googleusercontent.com/EYuep75zscu_hkSBZiooLCLYWd2LQ1CtRoN_ySkHK2eng3KVpI3-0ytliMW6tBgdibTwO3ohsq4u3PI=w1576-h611-rw "Graficas del Historico de medidas")
 
 ![Panel de Control](https://lh4.googleusercontent.com/niQ1drIoGrp2Jlf2xex3RoQM3YQiVlJM7OUJxknd-_VhfgtkPPSVjF6xifEky_5sIsBSjv0uiDtQnjg=w1576-h655-rw "Panel de Control")
 
