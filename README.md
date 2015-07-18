@@ -10,7 +10,7 @@ This is a very useful web app for checking the status not only of the B105 lab b
 This project has been developed by [Adrián Arévalo Aguirre](http://github.com/arebus93 "Adrián Arévalo Aguirre").
 
 # Screenshots
-![Graficas de Medidas en Tiempo Real](https://lh6.googleusercontent.com/UnVdH6N_vAz4j947moIYjv13B8AB9nalVrzM3LDXSHXC8z216rA1rDTaiunYiuVHoLPXttoxpTJdW4w=w1576-h655-rw "Graficas en Tiempo Real")
+![Graficas de Medidas en Tiempo Real](https://lh5.googleusercontent.com/9Anm1pYVpjI5nXiFLSP7Vm0D1CMH56-IJF0RTCng_uFDPEWISOOHcIIZiH-2L_aU6hSUAjAtOspIsc4=w1576-h611-rw "Graficas en Tiempo Real")
 
 ![Graficas del Historico de medidas](https://lh4.googleusercontent.com/uKd-IYIRT_ut5oK7wORFvCTtYl1xYKk8VFnjSS9GxArHRbeY0amusF0_TPj4EWvOpi48IHkCx9uYMWo=w1576-h655-rw "Graficas del Historico de medidas")
 
