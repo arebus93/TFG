@@ -10,11 +10,11 @@ This is a very useful web app for checking the status not only of the B105 lab b
 This project has been developed by [Adrián Arévalo Aguirre](http://github.com/arebus93 "Adrián Arévalo Aguirre").
 
 # Screenshots
-![Graficas de Medidas en Tiempo Real](https://lh5.googleusercontent.com/9Anm1pYVpjI5nXiFLSP7Vm0D1CMH56-IJF0RTCng_uFDPEWISOOHcIIZiH-2L_aU6hSUAjAtOspIsc4=w1576-h611-rw "Graficas en Tiempo Real")
+![Graficas de Medidas en Tiempo Real](https://lh5.googleusercontent.com/Pbs-CcQ4v_jOKrM0-htmor1VUC86MNNN8nww3ziEqbLGFFNd5DR4L8KYQXBAc6J2U6BB7lfQmZPWnNA=w1256-h555-rw "Graficas en Tiempo Real")
 
-![Graficas del Historico de medidas](https://lh3.googleusercontent.com/ZFstztTTSuhuwr5KD7SuhfBqKgi8FGeFtcFXYNfEBJZfChT3wIc6OXHSfBQUJY2jcuqfEaSsHxdBdhs=w760-h583-rw "Graficas del Historico de medidas")
+![Graficas del Historico de medidas](https://lh4.googleusercontent.com/r3mWgXOo21uK5hODsQ_eTkHU9pyXod2MCW9AeA3VQVwkSwKlA7tedXybJk2ee8X2zPngZNr6qSsF02I=w1256-h555-rw "Graficas del Historico de medidas")
 
-![Panel de Control](https://lh5.googleusercontent.com/GcdcxUYA-r9fQW4jMZ2U8zziWyosM0SeiFV2L7Z-3xSPzwtspVUMWEyO0RlCIsg2ukG0kU25cZB4gig=w1576-h611-rw "Panel de Control")
+![Panel de Control](https://lh5.googleusercontent.com/jLqWJDiyEbF8PwRFUtODcsI_3S7fuJ91T2dHXof0q2X4QbJo8VdKwF2q2BHDYnTxX0-wqzAp7foolmE=w1256-h555-rw "Panel de Control")
 
 
 # How to install
