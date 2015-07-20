@@ -186,9 +186,9 @@ io.sockets.on('connection', function(socket) {
   var dmax=new Date(max);
   var fmin=dmin.getFullYear()+"/"+(dmin.getMonth()+1)+"/"+dmin.getDate();
   var fmax=dmax.getFullYear()+"/"+(dmax.getMonth()+1)+"/"+dmax.getDate();
-  var hmin=dmin.toLocaleTimeString();
-  var hmax=dmax.toLocaleTimeString();
-  console.log(fmin,hmin,fmax,hmax);
+  //var hmin=dmin.toLocaleTimeString();
+  //var hmax=dmax.toLocaleTimeString();
+  console.log(fmin,fmax);
   var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
   db.all("SELECT Id_sensor FROM Sensores WHERE Tipo == 'Temperatura' ORDER BY Id_sensor", function (err,refs) {
    if(err){
@@ -197,11 +197,11 @@ io.sockets.on('connection', function(socket) {
       for(var i=0, l1=refs.length; i<l1;i++){
         var r=refs[i].Id_sensor;
         (function(r){
-	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor='"+r+"') AND ( Num_registro>=(SELECT Num_registro FROM Sensores WHERE FECHA='"+fmin+"'AND HORA='"+hmin+"') AND Num_registro<=(SELECT Num_registro FROM Sensores WHERE FECHA='"+fmax+"' AND HORA='"+hmax+"') ORDER BY Num_registro" , function ( err2,rows) {
-            if(err) {
+	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor='"+r+"') AND FECHA BETWEEN '"+fmin+"' AND '"+fmax+"' ORDER BY Num_registro" , function ( err2,rows) {
+    	    if(err) {
               console.log('exec error: ' + err2);
             }else {
-              console.log(rows+"_"+r);
+              //console.log(rows);
               socket_selector(socket,rows,r,'Load2');
             }
           })

@@ -7,7 +7,7 @@
   "author": "Adrián Arévalo Aguirre",
   "dependencies": {
     "sqlite3": "~2.2.3",
-    "socket.io": "~0.9.14",
+    "socket.io": "~0.9.16",
     "http-auth": "~2.2.8"
   }
 }

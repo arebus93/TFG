@@ -100,14 +100,6 @@
         }
       });
 
-    //Load new data depending on the selected min and max
-    function afterSetExtremes(e) {
-        var chartTemp = $('#chartTemp').highcharts();
-        chartTemp.showLoading('Loading data from server...');
-        //Pido el intervalo de medidas seleccionado al servidor
-        socket.emit('TReload', Math.round(e.min),Math.round(e.max));
-    }
-
     //Grafica de Temperatura
     chartTemp = new Highcharts.StockChart({
         chart: {
@@ -170,8 +162,12 @@
             },
         xAxis : {
           type: 'datetime',  
-          events : {
-              afterSetExtremes : afterSetExtremes
+          events : {//Load new data depending on the selected min and max
+              afterSetExtremes : function (e) {
+               chartTemp.showLoading('Loading data from server...');
+               //Pido el intervalo de medidas seleccionado al servidor
+               socket.emit('TReload', Math.round(e.min),Math.round(e.max));
+	      }
           },
           minRange: 3600 * 1000 // one hour
         },
