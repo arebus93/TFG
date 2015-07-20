@@ -67,21 +67,25 @@
       </div>
 
       <div class="col-lg-6">
-        <div class="container" id="chartLum" style="width:100%; height:300px;"></div>
+        <div class="container" id="chartBat" style="width:100%; height:300px;"></div>
       </div>
     </div>
 
     <div class="row marketing">
       <div class="col-lg-6">
-        <div class="container" id="chartAtm" style="width:100%; height:300px;"></div>
+        <div class="container" id="chartLum" style="width:100%; height:300px;"></div>
       </div>
 
       <div class="col-lg-6">
         <div class="container" id="chartHum" style="width:100%; height:300px;"></div>
       </div>
     </div>
-
-  </div>
+    <div class="row marketing">
+      <div class="col-lg-6">
+        <div class="container" id="chartAtm" style="width:100%; height:300px;"></div>
+      </div>
+    </div>
+   </div>
 
     <!-- Comienza el Javascript -->
     <script>
@@ -229,7 +233,7 @@
                socket.emit('Reload','P',Math.round(e.min),Math.round(e.max));
                }
           },
-          minRange: 3600 * 1000 // one hour
+        minRange: 3600 * 1000 // one hour
         },
         yAxis: {
             minPadding: 0.1,
@@ -244,8 +248,382 @@
         exporting: {
                 enabled: true
         },
-     });  
+     });
+
+    //Grafica de Consumo
+    chartCons = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartCons',
+             zoomType: 'x', 
+        events: {
+                load: function() {
+              //Cuando cargo la grafica por primera vez, cago las
+              // medidas alamcenadas de cada sensor
+              socket.on('CLoad', function (id, datos) {
+                   chartCons.addSeries({
+                    name: id,
+                    id:id,
+                    data:datos,
+                    step:true
+                   },false);
+                   chartCons.redraw();        
+             });
+             //Recoge los datos que manda el servidor y los presenta en la grafica seleccionada
+            socket.on('CLoad2', function (id, datos){
+            var series=chartCons.get(id);
+            series.setData(datos);
+            chartCons.hideLoading();
+             });
+              },
+            }
+        },
+        navigator : {
+                adaptToUpdatedData: false
+        },
+        scrollbar: {
+                liveRedraw: false
+        },
+        title: {
+            text: 'Consumo'
+        },
+        rangeSelector :{
+            buttons: [
+                {type: 'hour',count: 1, text: '1h'},
+                {type: 'day',count: 1, text: '1d'},
+                {type: 'day',count: 7, text: '7d'},
+                {type: 'month', count: 1,text: '1m'},
+                {type: 'year', count: 1, text: '1y'},
+                {type: 'all', text: 'All'}],
+                inputEnabled: false, // it supports only days
+                selected : 5 // all
+            },
+        xAxis : {
+          type: 'datetime',  
+          events : {//Load new data depending on the selected min and max
+              afterSetExtremes : function (e) {
+               chartCons.showLoading('Loading data from server...');
+               //Pido el intervalo de medidas seleccionado al servidor
+               socket.emit('Reload','C',Math.round(e.min),Math.round(e.max));
+               }
+          },
+          minRange: 3600 * 1000 // one hour
+        },
+        yAxis: {
+            minPadding: 0.1,
+            maxPadding: 0.1
+        },
+        tooltip: {
+                    valueDecimals: 0,
+                    valueSuffix: 'W'
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+
+    //Grafica de Bateria
+    chartBat = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartBat',
+            zoomType: 'x', 
+        events: {
+                load: function() {
+              //Cuando cargo la grafica por primera vez, cago las
+              // medidas alamcenadas de cada sensor
+              socket.on('BLoad', function (id, datos) {
+                   chartBat.addSeries({
+                    name: id,
+                    id:id,
+                    data:datos,
+                    step:true
+                   },false);
+                   chartBat.redraw();        
+             });
+             //Recoge los datos que manda el servidor y los presenta en la grafica seleccionada
+            socket.on('BLoad2', function (id, datos){
+            var series=chartBat.get(id);
+            series.setData(datos);
+            chartBat.hideLoading();
+             });
+              },
+            }
+        },
+        navigator : {
+                adaptToUpdatedData: false
+        },
+        scrollbar: {
+                liveRedraw: false
+        },
+        title: {
+            text: 'Bateria'
+        },
+        rangeSelector :{
+            buttons: [
+                {type: 'hour',count: 1, text: '1h'},
+                {type: 'day',count: 1, text: '1d'},
+                {type: 'day',count: 7, text: '7d'},
+                {type: 'month', count: 1,text: '1m'},
+                {type: 'year', count: 1, text: '1y'},
+                {type: 'all', text: 'All'}],
+                inputEnabled: false, // it supports only days
+                selected : 5 // all
+            },
+        xAxis : {
+          type: 'datetime',  
+          events : {//Load new data depending on the selected min and max
+              afterSetExtremes : function (e) {
+               chartBat.showLoading('Loading data from server...');
+               //Pido el intervalo de medidas seleccionado al servidor
+               socket.emit('Reload','B',Math.round(e.min),Math.round(e.max));
+               }
+          },
+          minRange: 3600 * 1000 // one hour
+        },
+        yAxis: {
+	    plotLines: [{
+            value: 2.5,
+            color: 'red',
+            dashStyle: 'shortdash',
+            width: 1,
+            }],
+            minPadding: 0.1,
+            maxPadding: 0.1
+        },
+        tooltip: {
+                    valueDecimals: 3,
+                    valueSuffix: 'V'
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+
+    //Grafica de Luminosidad
+    chartLum = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartLum',
+             zoomType: 'x', 
+        events: {
+                load: function() {
+              //Cuando cargo la grafica por primera vez, cago las
+              // medidas alamcenadas de cada sensor
+              socket.on('LLoad', function (id, datos) {
+                   chartLum.addSeries({
+                    name: id,
+                    id:id,
+                    data:datos,
+                    step:true
+                   },false);
+                   chartLum.redraw();        
+             });
+             //Recoge los datos que manda el servidor y los presenta en la grafica seleccionada
+            socket.on('LLoad2', function (id, datos){
+            var series=chartLum.get(id);
+            series.setData(datos);
+            chartLum.hideLoading();
+             });
+              },
+            }
+        },
+        navigator : {
+                adaptToUpdatedData: false
+        },
+        scrollbar: {
+                liveRedraw: false
+        },
+        title: {
+            text: 'Luminosidad'
+        },
+        rangeSelector :{
+            buttons: [
+                {type: 'hour',count: 1, text: '1h'},
+                {type: 'day',count: 1, text: '1d'},
+                {type: 'day',count: 7, text: '7d'},
+                {type: 'month', count: 1,text: '1m'},
+                {type: 'year', count: 1, text: '1y'},
+                {type: 'all', text: 'All'}],
+                inputEnabled: false, // it supports only days
+                selected : 5 // all
+            },
+        xAxis : {
+          type: 'datetime',  
+          events : {//Load new data depending on the selected min and max
+              afterSetExtremes : function (e) {
+               chartLum.showLoading('Loading data from server...');
+               //Pido el intervalo de medidas seleccionado al servidor
+               socket.emit('Reload','L',Math.round(e.min),Math.round(e.max));
+               }
+          },
+          minRange: 3600 * 1000 // one hour
+        },
+        yAxis: {
+            minPadding: 0.1,
+            maxPadding: 0.1
+        },
+        tooltip: {
+                    valueDecimals: 0,
+                    valueSuffix: 'lux'
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+ //Grafica de Presion Atmosferica
+    chartAtm = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartAtm',
+             zoomType: 'x', 
+        events: {
+                load: function() {
+              //Cuando cargo la grafica por primera vez, cago las
+              // medidas alamcenadas de cada sensor
+              socket.on('ALoad', function (id, datos) {
+                   chartAtm.addSeries({
+                    name: id,
+                    id:id,
+                    data:datos,
+                    step:true
+                   },false);
+                   chartAtm.redraw();        
+             });
+             //Recoge los datos que manda el servidor y los presenta en la grafica seleccionada
+            socket.on('ALoad2', function (id, datos){
+            var series=chartAtm.get(id);
+            series.setData(datos);
+            chartAtm.hideLoading();
+             });
+              },
+            }
+        },
+        navigator : {
+                adaptToUpdatedData: false
+        },
+        scrollbar: {
+                liveRedraw: false
+        },
+        title: {
+            text: 'Presion Atmosferica'
+        },
+        rangeSelector :{
+            buttons: [
+                {type: 'hour',count: 1, text: '1h'},
+                {type: 'day',count: 1, text: '1d'},
+                {type: 'day',count: 7, text: '7d'},
+                {type: 'month', count: 1,text: '1m'},
+                {type: 'year', count: 1, text: '1y'},
+                {type: 'all', text: 'All'}],
+                inputEnabled: false, // it supports only days
+                selected : 5 // all
+            },
+        xAxis : {
+          type: 'datetime',  
+          events : {//Load new data depending on the selected min and max
+              afterSetExtremes : function (e) {
+               chartAtm.showLoading('Loading data from server...');
+               //Pido el intervalo de medidas seleccionado al servidor
+               socket.emit('Reload','A',Math.round(e.min),Math.round(e.max));
+               }
+          },
+          minRange: 3600 * 1000 // one hour
+        },
+        yAxis: {
+            minPadding: 0.1,
+            maxPadding: 0.1
+        },
+        tooltip: {
+                    valueDecimals: 0,
+                    valueSuffix: 'hPa'
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
+    //Grafica de Humedad Relativa
+    chartHum = new Highcharts.StockChart({
+        chart: {
+            renderTo: 'chartHum',
+             zoomType: 'x', 
+        events: {
+                load: function() {
+              //Cuando cargo la grafica por primera vez, cago las
+              // medidas alamcenadas de cada sensor
+              socket.on('HLoad', function (id, datos) {
+                   chartHum.addSeries({
+                    name: id,
+                    id:id,
+                    data:datos,
+                    step:true
+                   },false);
+                   chartHum.redraw();        
+             });
+             //Recoge los datos que manda el servidor y los presenta en la grafica seleccionada
+            socket.on('HLoad2', function (id, datos){
+            var series=chartHum.get(id);
+            series.setData(datos);
+            chartHum.hideLoading();
+             });
+              },
+            }
+        },
+        navigator : {
+                adaptToUpdatedData: false
+        },
+        scrollbar: {
+                liveRedraw: false
+        },
+        title: {
+            text: 'Humedad Relativa'
+        },
+        rangeSelector :{
+            buttons: [
+                {type: 'hour',count: 1, text: '1h'},
+                {type: 'day',count: 1, text: '1d'},
+                {type: 'day',count: 7, text: '7d'},
+                {type: 'month', count: 1,text: '1m'},
+                {type: 'year', count: 1, text: '1y'},
+                {type: 'all', text: 'All'}],
+                inputEnabled: false, // it supports only days
+                selected : 5 // all
+            },
+        xAxis : {
+          type: 'datetime',  
+          events : {//Load new data depending on the selected min and max
+              afterSetExtremes : function (e) {
+               chartHum.showLoading('Loading data from server...');
+               //Pido el intervalo de medidas seleccionado al servidor
+               socket.emit('Reload','H',Math.round(e.min),Math.round(e.max));
+               }
+          },
+          minRange: 3600 * 1000 // one hour
+        },
+        yAxis: {
+            minPadding: 0.1,
+            maxPadding: 0.1
+        },
+        tooltip: {
+                    valueDecimals: 0,
+                    valueSuffix: '%'
+        },
+        legend: {
+                enabled: true
+        },
+        exporting: {
+                enabled: true
+        },
+     });
     </script>   
-</body>
+  </body>
 </html>
       

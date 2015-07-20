@@ -198,6 +198,7 @@ io.sockets.on('connection', function(socket) {
        console.log('exec error: ' + err);
    }else{ //cargamos los sensores
       for(var i=0, l1=refs.length; i<l1;i++){
+	console.log(refs);
         var r=refs[i].Id_sensor;
         (function(r){
 	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE Id_sensor='"+r+"' AND (FECHA BETWEEN '"+fmin+"' AND '"+fmax+"') ORDER BY Num_registro" , function ( err2,rows) {
@@ -284,7 +285,7 @@ function infoTreal(socket) {
 //Funcion para cargar las graficas del historico de medidas
 function infoHist(socket) {
  var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
- db.all("SELECT Id_sensor FROM Sensores WHERE Tipo != 'Bateria' ORDER BY Id_sensor", function (err,refs) {
+ db.all("SELECT Id_sensor FROM Sensores ORDER BY Id_sensor", function (err,refs) {
     if(err){
        console.log('exec error: ' + err);
     }else{ //cargamos los sensores
