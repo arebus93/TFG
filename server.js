@@ -181,7 +181,9 @@ io.sockets.on('connection', function(socket) {
    });
   }
  });
- socket.on('TReload', function(min,max) {
+
+//Recarga un intervalo de medidas solicitado en una de las graficas 
+ socket.on('Reload', function(t,min,max) {
   var dmin=new Date(min);
   var dmax=new Date(max);
   var fmin=dmin.getFullYear()+"/"+(dmin.getMonth()+1)+"/"+dmin.getDate();
@@ -189,20 +191,21 @@ io.sockets.on('connection', function(socket) {
   //var hmin=dmin.toLocaleTimeString();
   //var hmax=dmax.toLocaleTimeString();
   console.log(fmin,fmax);
+  var tipo=T_sensors[2][T_sensors[0].indexOf(t)];
   var db = new sqlite3.Database('database.sqlite3',sqlite3.OPEN_READONLY);
-  db.all("SELECT Id_sensor FROM Sensores WHERE Tipo == 'Temperatura' ORDER BY Id_sensor", function (err,refs) {
+  db.all("SELECT Id_sensor FROM Sensores WHERE Tipo ='"+tipo+"'ORDER BY Id_sensor", function (err,refs) {
    if(err){
        console.log('exec error: ' + err);
    }else{ //cargamos los sensores
       for(var i=0, l1=refs.length; i<l1;i++){
         var r=refs[i].Id_sensor;
         (function(r){
-	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE (Id_sensor='"+r+"') AND FECHA BETWEEN '"+fmin+"' AND '"+fmax+"' ORDER BY Num_registro" , function ( err2,rows) {
+	  db.all("SELECT Num_registro, Valor, Fecha, Hora FROM Medidas WHERE Id_sensor='"+r+"' AND (FECHA BETWEEN '"+fmin+"' AND '"+fmax+"') ORDER BY Num_registro" , function ( err2,rows) {
     	    if(err) {
               console.log('exec error: ' + err2);
             }else {
-              //console.log(rows);
-              socket_selector(socket,rows,r,'Load2');
+             //console.log(rows);
+             socket_selector(socket,rows,r,'Load2');
             }
           })
         })(r);
