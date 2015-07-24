@@ -20,7 +20,7 @@ Timeout=1
 MAX_MEDIDAS=6
 
 #-Tupla de tipos de sensor
-T_sensores=('T','P','L','B','C','A','H')
+T_sensores=('T','P','L','B','C','A','H', 'G')
 
 #-Inicializacion UART
 ser.initSerial(Puerto,Vel,Timeout)
@@ -40,8 +40,8 @@ precarga_sensores =[ (0,01,'Temperatura',0,0,0),(0,02,'Presencia',0,0,0),(0,04,'
                      (7,71,'Temperatura',7,-1,0),(7,72,'Presencia',7,-1,0),(7,74,'Bateria',7,-1,0),
                      (8,81,'Temperatura',8,-1,0),(8,82,'Presencia',8,-1,0),(8,84,'Bateria',8,-1,0),
                      (9,91,'Temperatura',9,-1,0),(9,92,'Presencia',9,-1,0),(9,94,'Bateria',9,-1,0),
-		     (10,101,'Temperatura',10,-1,0),(10,104,'Bateria',10,-1,0),(10,105,'Consumo',10,-1,0),
-		     (11,111,'Temperatura',11,-1,0),(11,114,'Bateria',11,-1,0),(11,115,'Consumo',11,-1,0)]
+		     (10,104,'Bateria',10,-1,0),(10,105,'Consumo',10,-1,0),(10,108,'TCPU',10,-1,0),
+		     (11,114,'Bateria',11,-1,0),(11,115,'Consumo',11,-1,0),(11,118,'TCPU',11,-1,0)]
 db.nuevoSensor(precarga_sensores)
 
 #- A continuacion actualizamos la cache de sensores
