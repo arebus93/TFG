@@ -15,7 +15,8 @@ def crearTablas():
 		Id_sensor INTEGER PRIMARY KEY,
 		Tipo VARCHAR(40) NOT NULL,
 		Localizacion INTEGER NOT NULL,
-		Id_red INTEGER NOT NULL)
+		Id_red INTEGER NOT NULL,
+		Estado INTEGER NOT NULL)
 		"""
 	sql1 = """CREATE TABLE IF NOT EXISTS Medidas(
 		Num_registro INTEGER PRIMARY KEY,
@@ -51,7 +52,7 @@ def nuevoSensor(r_sensores):
 	bd = sqlite3.connect('database.sqlite3')
 	cursor = bd.cursor()
 
-	sql = 'INSERT INTO Sensores VALUES(?,?,?,?,?)'
+	sql = 'INSERT INTO Sensores VALUES(?,?,?,?,?,?)'
 
         try:
             cursor.executemany(sql,r_sensores)
@@ -69,7 +70,7 @@ def cargarSensores():
 	bd = sqlite3.connect('database.sqlite3')
 	cursor = bd.cursor()
 
-        sql = "SELECT Id_nodo,Id_sensor,Id_red FROM Sensores ORDER BY Id_sensor ASC"
+        sql = "SELECT Id_nodo,Id_sensor,Id_red,Estado FROM Sensores ORDER BY Id_sensor ASC"
 
 	try:
    		cursor.execute(sql)	
@@ -77,11 +78,11 @@ def cargarSensores():
 		d={}
 		#-Creamos la cache de sensores, donde el primer elemento
 		#- es el id_red y el resto son los sensores del nodo
-		for x,y,z in rows:
+		for x,y,z,w in rows:
 		 if x in d.keys():
         	   d[x].append(y)
     		 else:
-        	   d[x]=[z,y]
+        	   d[x]=[z,w,y]
 	        print d
 		return d
 
@@ -102,7 +103,7 @@ def TablaSensores():
 		cursor.execute(sql)
 		rows=cursor.fetchall()
 		for row in rows:
-			 print "%d %d %s %d %d" % (row[0], row[1], row[2],row[3],row[4])
+			 print "%d %d %s %d %d %d" % (row[0], row[1], row[2],row[3],row[4],row[5])
 			 
         except sqlite3.Error, e:
 		print "Error %s:" %e.args[0]
@@ -138,8 +139,12 @@ def updateId_red(id_nodo,id_red):
 
 	bd = sqlite3.connect('database.sqlite3')
 	cursor = bd.cursor()
-	ident=(id_red,id_nodo)
-	sql = "UPDATE Sensores SET Id_red = ? WHERE Id_nodo= ?"
+	if(id_red == -1 and id_nodo == -1):
+	 ident=(id_red,)
+	 sql= "UPDATE Sensores SET Id_red = ?"
+	else:
+         ident=(id_red,id_nodo)
+         sql = "UPDATE Sensores SET Id_red = ? WHERE Id_nodo= ?"
 	try:
    		cursor.execute(sql,ident)
    		bd.commit()
@@ -148,6 +153,22 @@ def updateId_red(id_nodo,id_red):
    		bd.rollback()
 
    	bd.close()
+
+#--Funcion para actualizar el estado
+def updateEstado(id_nodo,estado):
+
+        bd = sqlite3.connect('database.sqlite3')
+        cursor = bd.cursor()
+        ident=(estado,id_nodo)
+        sql = "UPDATE Sensores SET Estado = ? WHERE Id_nodo= ?"
+        try:
+                cursor.execute(sql,ident)
+                bd.commit()
+        except sqlite3.Error, e:
+                print "Error %s:" %e.args[0]
+                bd.rollback()
+
+        bd.close()
 
 #-------------------------------------------------------
 #- Funciones Medidas

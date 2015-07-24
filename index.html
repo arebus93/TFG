@@ -35,12 +35,12 @@
           <div class="panel-heading" style="background:#228B22;" >Panel Informacion Domotica B105</div>
           <div class="panel-body">
 	  <div class="col-lg-6">
-            <p>Here you can see the general info of the domotics services availabe in the labo </p>
+            <p>Here you can see the general info of the domotics services availabe on real tIme in the labo </p>
 	  </div>
           <div class="col-lg-6">
 	  <div class="btn-group pull-right">
             <a href="#" class="btn btn-default btn-sm active">Tiempo real</a>
-            <a href="#" class="btn btn-default btn-sm">Historico</a>
+            <a href="/2" class="btn btn-default btn-sm">Historico</a>
             <a href="/sensors" class="btn btn-success btn-sm">Sensores</a>
           </div>
           </div>
@@ -66,13 +66,13 @@
       </div>
 
       <div class="col-lg-6">
-        <div class="container" id="chartLum" style="width:100%; height:300px;"></div>
+        <div class="container" id="chartBat" style="width:100%; height:300px;"></div>
       </div>
     </div>
 
     <div class="row marketing">
       <div class="col-lg-6">
-        <div class="container" id="chartAtm" style="width:100%; height:300px;"></div>
+        <div class="container" id="chartLum" style="width:100%; height:300px;"></div>
       </div>
 
       <div class="col-lg-6">
@@ -80,14 +80,20 @@
       </div>
     </div>
 
+    <div class="row marketing">
+      <div class="col-lg-6">
+        <div class="container" id="chartAtm" style="width:100%; height:300px;"></div>
+      </div>
+    </div>
   </div>
 
     <!-- Comienza el Javascript -->
     <script>
+
     // Creo un WebSocket. 
     var socket = io.connect('http://'+ location.host);
     // console.log(location.host)
-      
+   
     // Creo las graficas de Temperatura, Presencia,Consumo, Luminosidad,
     //Presion y Humedad.
     var chartTemp, chartPres, chartCons, chartLum, chartAtm, chartHum;
@@ -98,14 +104,15 @@
           useUTC: false
         }
       });
+
     //Grafica de Temperatura
     chartTemp = new Highcharts.StockChart({
         chart: {
-            renderTo: 'chartTemp', 
+            renderTo: 'chartTemp',
+	    zoomType: 'x', 
         events: {
                 load: function() {
-                    
-                  //Cuando cargo la grafica por primera vez, cago las
+                 //Cuando cargo la grafica por primera vez, cago las
               // medidas alamcenadas de cada sensor
               socket.on('TLoad', function (id, datos) {
                    chartTemp.addSeries({
@@ -124,16 +131,28 @@
               }
             }
         },
-        rangeSelector : {
-            selected : 1
-        },
         title: {
             text: 'Temperatura'
         },
+ 	navigator : {
+            enabled : false
+        },
+	scrollbar : {
+                enabled : false
+        },
+	rangeSelector :{
+            buttons: [
+		{type: 'minute',count: 1,text: '1min'},
+		{type: 'minute',count: 5,text: '5min'},
+		{type: 'hour',count: 1,text: '1h'},
+		{type: 'hour',count: 2,text: '2h'},
+		{type: 'all',text: 'All'}],
+ 	        inputEnabled: false,
+                selected : 4 // all
+        },
         xAxis: {
             type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
+            maxZoom: 60 * 1000 //one minute
         },
         yAxis: {
             minPadding: 0.2,
@@ -153,7 +172,8 @@
    //Grafica de Presencia
     chartPres = new Highcharts.StockChart({
         chart: {
-            renderTo: 'chartPres', 
+            renderTo: 'chartPres',
+	    zoomType: 'x',
             events: {
                 load: function() {
              //Cuando cargo la grafica por primera vez, cago las
@@ -176,16 +196,28 @@
                }
             }
         },
-        rangeSelector : {
-            selected : 1
-        },
         title: {
             text: 'Presencia/Ausencia'
         },
+        navigator : {
+            enabled : false
+        },
+        scrollbar : {
+                enabled : false
+        },
+        rangeSelector :{
+            buttons: [
+                {type: 'minute',count: 1,text: '1min'},
+                {type: 'minute',count: 5,text: '5min'},
+                {type: 'hour',count: 1,text: '1h'},
+                {type: 'hour',count: 2,text: '2h'},
+                {type: 'all',text: 'All'}],
+                inputEnabled: false,
+                selected : 4 // all
+        },
         xAxis: {
             type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
+            maxZoom: 60 * 1000
         },
         yAxis: {
             minPadding: 0.2,
@@ -202,6 +234,7 @@
     chartCons = new Highcharts.StockChart({
         chart: {
             renderTo: 'chartCons', 
+	    zoomType: 'x',
             events: {
                 load: function() {
                 //Cuando cargo la grafica por primera vez, cago las
@@ -224,23 +257,34 @@
               }
             }
         },
-        rangeSelector : {
-            selected : 1
-        },
         title: {
             text: 'Consumo'
         },
+        navigator : {
+            enabled : false
+        },
+        scrollbar : {
+                enabled : false
+        },
+        rangeSelector :{
+            buttons: [
+                {type: 'minute',count: 1,text: '1min'},
+                {type: 'minute',count: 5,text: '5min'},
+                {type: 'hour',count: 1,text: '1h'},
+                {type: 'hour',count: 2,text: '2h'},
+                {type: 'all',text: 'All'}],
+                inputEnabled: false,
+                selected : 4 // all
+        },
         xAxis: {
             type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
+            maxZoom: 60 * 1000
         },
         yAxis: {
             minPadding: 0.2,
             maxPadding: 0.2
         },
         tooltip: {
-                valueDecimals: 0,
                 valueSuffix: 'W'
         },
         legend: {
@@ -250,159 +294,31 @@
                 enabled: true
         },
      });
-   //Grafica de Luminosidad
-    chartLum = new Highcharts.StockChart({
+   //Grafica de Bateria
+    chartBat = new Highcharts.StockChart({
         chart: {
-            renderTo: 'chartLum', 
-            events: {
-                load: function() {
-                 //Cuando cargo la grafica por primera vez, cago las
-                 // medidas alamcenadas de cada sensor
-                 socket.on('LLoad', function (id, datos) {
-                  chartLum.addSeries({
-                    name: id,
-                    id:id,
-                    data:datos,
-                    type:'spline'
-                  },false);
-                  chartLum.redraw();        
-                 });
-            
-                // Cada vez que reciba un valor desde el socket, lo meto en la grÃ¡fica
-                socket.on('LUpdate', function (id, datos) {
-                  var series=chartLum.get(id);  
-                  series.addPoint(datos[0],true,true);
-                });
-              }
-            }
-        },
-        rangeSelector : {
-            selected : 1
-        },
-        title: {
-            text: 'Luminosidad'
-        },
-        xAxis: {
-            type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
-        },
-        yAxis: {
-            minPadding: 0.2,
-            maxPadding: 0.2
-        },
-        tooltip: {
-                valueSuffix: 'lux'
-        },
-        legend: {
-                enabled: true
-        },
-        exporting: {
-                enabled: true
-        },
-     });
-  //Grafica de Presion
-    chartAtm = new Highcharts.StockChart({
-        chart: {
-            renderTo: 'chartAtm', 
-            events: {
-                load: function() {
-                  //Cuando cargo la grafica por primera vez, cago las
-                  // medidas alamcenadas de cada sensor
-                  socket.on('ALoad', function (id, datos) {
-                   chartAtm.addSeries({
-                    name: id,
-                    id:id,
-                    data:datos,
-                    type:'spline'
-                  },false);
-                  chartAtm.redraw();        
-                 });
-            
-                 // Cada vez que reciba un valor desde el socket, lo meto en la grÃ¡fica
-                 socket.on('AUpdate', function (id, datos) {
-                  var series=chartAtm.get(id);  
-                  series.addPoint(datos[0],true,true);
-                 });
-               }
-            }
-        },
-        rangeSelector : {
-            selected : 1
-        },
-        title: {
-            text: 'PresiÃ³n AtmosfÃ©rica'
-        },
-        xAxis: {
-            type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
-        },
-        yAxis: {
-            minPadding: 0.2,
-            maxPadding: 0.2
-        },
-        tooltip: {
-                valueSuffix: 'hPa'
-        },
-        legend: {
-                enabled: true
-        },
-        exporting: {
-                enabled: true
-        },
-     });
-  //Grafica de Humedad
-    chartHum = new Highcharts.StockChart({
-        chart: {
-            renderTo: 'chartHum', 
-            events: {
-                load: function() {
-                //Cuando cargo la grafica por primera vez, cago las
-                // medidas alamcenadas de cada sensor
-                 socket.on('HLoad', function (id, datos) {
-                  chartHum.addSeries({
-                    name: id,
-                    id:id,
-                    data:datos,
-                    type:'spline'
-                  },false);
-                  chartHum.redraw();        
-                 });
-            
-                 // Cada vez que reciba un valor desde el socket, lo meto en la grÃ¡fica
-                  socket.on('HUpdate', function (id, datos) {
-                    var series=chartHum.get(id);  
-                    series.addPoint(datos[0],true,true);
-                  });
-               }
-            }
-        },
-        rangeSelector : {
-            selected : 1
-        },
-        title: {
-            text: 'Humedad relativa'
-        },
-        xAxis: {
-            type: 'datetime',
-            tickPixelInterval: 150,
-            maxZoom: 20 * 1000
-        },
-        yAxis: {
-            minPadding: 0.2,
-            maxPadding: 0.2
-        },
-        tooltip: {
-                valueSuffix: '%'
-        },
-        legend: {
-                enabled: true
-        },
-        exporting: {
-                enabled: true
-        },
-     });
-    </script>   
-</body>
-</html>
+           …”ÄÈe×ZN:§°ÁÓTıG’]”z×,¡SĞú>4ªD¿—®÷i`‹ŒışW×eÈÑ_î«Œ¥Í,Î ^ò¿F´&VÇ$".ŒĞòY.@›ü‹H~H7èÍo& :b]š¡(ƒ±/„aï’üõğ]Ü×[“Àë°¸jßĞcB I}À»Sm²™1>Ğ†IªÑä©ó(kcÆ9/Fi™9Ô5¡ÛÄAÄ°Wûí„mª"x€sb•?™ï.dŸz¥ZÉPvĞö'g”¿°†Qq¹4¬m¡7µÿ5	íQ‡X
+¹“F*g*]YtĞOÈî™Ôÿj&[9;PÕÑX|á$·_Wï#…ãétÒ,„ø€=ÈLÎ¼ „ÑĞ‰(âo½1³ø–œ3ÌnŒJJñTÏ®¤j€«]ØCÏA–ÌıèzD3í+CIz„BbåS×›£Øcí¥+¸«×¤ ;YíáşNÜĞß½€¹	!|û¼	Rf‰X¤Giqˆ™÷C*0—y:iS»ñ¦hıô¸u 4t®Íë‘A÷{Ğô?ZEùY•ÕÌg,Ÿ´MøF"½gƒ2œDH|P–_B÷ôó»èŸB¤hÇ304Øº2Mz÷ş£´û²RÇC‚¦ˆe‹–¶û:YÏò˜>êÌŞÈ–4[—S=Š »ÆÔcÛ¯+ÕåBë£Õ¨Ûrj4Mz®O2ü€- 5¥z–’ÆıÕûf…ÉÜöX0Ö¡ãaŸ1Ófu•KÉR	¢vt3xó-9´RÑÑ‘EQ²Nµ3Mû"Ëø÷€¿Z22NF¹ó{ó”‰ƒÜ"[hQşåªqn{½<¿·‡šY|#ÈEz/<sÄ!š«‹q-8ß)´ŸÉÃ´âªQ|«1íâp”?˜’Ò–T144]ğc(2QU–<÷ÜÆ‹dˆB_,rbB"OàÌÜŸµË])µô²¦5úø ©Øô§OzıfTS\)÷x¯ˆ¥!ÙLí:<×qo´Â$h5t‡ºô	Q&ÖV+±X_30˜°efJz”ËÇ?Tx4Òd£cÑIøöëÄ?³*·À˜ÒD£ ›ZÁ®gÆSÙ/§)ımØ¨Ÿö,;b¤à5§6Gu*ñ´×¢^è0²úfAöoÜï
+óNs§k‰’Óı/Tµ,ĞŒÑ]6÷@áPNèıª'õ®ö{
+-á	õ4hølÚ~ôUôœÆÄEÆäP`Ê8íÓ„–ãüeéíèÚ•œæÿD›#‘"*™‹Å¡û•ÛôßaìPëÃˆ1¶àƒïÄwè‰G;@•vØ$1“×™ÃqĞ‹uNš®ˆª#È¿BÂR‘-lOŸ'M˜ëj lÓ77/2ä—Läô¥LÆ‚hÙ/U […œ‚.”…ê×„<õ‹÷™¼Æ'MÀ×%—ñf:ı£J¶Öò k¸ù~¯Wëòî]fìÍ¯és‹Âñ»4Ü\8€*/Z7ày’+İÃÄÔ" Ğ…îkùS3ŠUÜwì¡ØÒ“2½Ô|¢QàqûàéğtŞPÎÃøÁŞVNbZÇæØ(m¼ı|ù³Û×qÙ¹7>[x(PÃïoVÅ*DF‘c=Z:!P³ğöø­½‰Óêğì;ƒ/Ò1å¬Xí?ÀqúyêtÅızËxó[Q¬Ş¹(KèÓˆÜùK¸I¨{ŸÆ-ùRWµ\¢hpWÎ$ü‘XŞˆs4!ĞvÈ‚ÂäÕ¿tÉB¹Ia0ÏUÈßK•÷• ²7ˆ»$…€Ü!Ê­ÛÍ2—säŒïÙÂµqÁæ[7£Ù 3éNlå‘{ÕúW™á^ÜSÆm]ÛB¦WÛüpL¤:Úî"oM¹®ÖÖgwCíËc­A=ôa—iM~Q‹ÁVwÄæeöœ@-oöN
+øÂˆ°¨~—ç$ÇÁ>±üê}ñ<0#GÑºdßk8‚çSCâãQüED«È–KsÎÆÙÉzv†Ä*Pœ²Ú=3¿p.…¦[ì?Ğ`DLš¾.­=Ô?~2ÁÒo/˜ÆŠó'Ş4 “ñ†¬ìş~Éİc=—+„PPÁ|}áÄíé‹ƒÚj:T™A/¹ „;\ ïùogó[ÖİëŒT.vÎ¯·J‚„P'Ená=–@ÿ5ÑÙ.ÌR`å?)¦|ú™úØÜª½Ä¯e¥-–çè´ªÁÌF® »÷´Ü.¥ÿóEÿ\|JeÖ15_&•â0` ·ñu0Å~‚º¤ÂÊ<µPè“tõìÕ_‰¬W	ÊÛçxbxhwø5M¾âx=ë#m›OdÔçÃ•$¤FÒépètô‡®:´øytP2àa8P½tÔ*ÛHA×©Ò'q•ª[ıüeéŞºß(ßä¬B¬°[â¾Ÿ™“u—°Ş‘ş¦ºn8ëJÀ~·²’VomÛ¤ŸÛi‡Ù¾hÙªÔi<.
+ÆF|U',ÃrvŒ#ªdsåç”¼C
+ÓãÕ"ê>ù—w!Ìé—º9ŒäU9Bå°½ÛíŸââ:‡ Å³šgø×-Ê({QâlÅ<§³456‹©*õæ2ßûî¸^÷rH×Oë@'ˆv<Xå¯ÿ!ØËHŒÏt·`Èq[«¾y"Ê“Œå>B`ÃıâLhI|îĞ˜\ÓsĞï›N¯‚BvUõväåBJ‰âGä²k-'ÓFØàiªş#É.J½k–Ğ)h}šGU¢_ƒK×{ˆ4°EË?İ¨k2eg!ñJßJşŒğ›8àÆ;Ç‰²~ˆ]Ö€%kˆù¨˜®Lçİ¼¥3€ãÿ®‹€«”3×Ê˜ )—Æ1øGûğ‘ß`´yğ´ÑøèÂE¨uäğç0	$ºoS/AVqZ¼ÍõhÍdÕŒ¸ğ¥¼#´M“ä#Ölû¸úB<fa[®MŒ¦Ù$+ÒL
+h²	OÁ
+Òˆ}°£òl$ÓÂÀÛ5"EL®İZœ`€„y¦Ò¨ĞÅÑ»¤¹šµ¢ğºşîÑód9Rk‚(êì£°à
+C5<l†Ûhì¢Û›p‹[gÍß"8dŞ CçfKï®F ]ÎçÜ×ŞVû­_8¼c§¦‘O¶ÀT¡âäTR~'d¨ï*^;î%¸¹¥Z-p´´èMÑh>øüDMñÅKŠµoèg›>óp÷SÀ‡¾üQŠª-•Ü´”E8£!]TÖf8ˆ Ó1\òµŞøS5ñt[¾¢ÏUqnß¹b¥pg…´¿d¶Æ«Éı0OŞH(z:™	D$\V Ö:¹¤1V5¬º¼bÌİôÎ®Ü1çÖöÊ1¤âgIÇdD1ù,€•Ç2EÊTs¸)s`”Ô…âıx}Ò‚š0Ñ°ƒ_zm°nê±mW<ÂÔ4ÇÁÙãÔ}
+?=Õ§™~À6€ŠR=ÀãşÅğ}³ÆÂdn{,‹ëĞñ²Ï˜i³ºÊ¥d©„Q;º¼ù–Z©hèÈ¢(Y§Ú™¦}‘eü{À_-'£W²=o;VÇo‹-ˆ¤fr›9‹½^ßÛCÍ,¾ä"½9âÍÕÅ¸œïÚÏäaZqÕ(¾‹Õ˜vñ@8ÊŒÎÌIiKªš.ø1™(‚*K{nãE2D¡/91!‘'pfîÏÚå®”ZzYÓ}|ĞTlúÓ'½~3ª©
+®€”{¼WÄÒ‚l¦vë¸7Zá´ºƒC]ú„¨@ë«•X¬¯LØ23%=ÊåcŒ‡*<i²Ñ±è$|ûuâŸY[`Li"‹Q€M­`×3ã©ì—Ó”‚Çş6lTO{–1ÒğšS›£º•xÚkQ/tY}H³ û7n‚w…y§¹ÓµDÉéşªZ–‡ hÆè.›{ p('ô~Õ“ú
+Wû=‰Ç–ğ„z4|6m?ú*úÏÀa©í|¨ñß¬ÇßğbCI4…MÄÍDxùÊ¹Æ>Iì8ê!»m…fåC!òmc_¶CØ‰Ä‘áä@œÂàv@Pdà„·éE‚?îäûkËÎÓ¿£I›¼ø$²:ÑP|z¬ËiÍ/¬f72eY§õÅ‰“XEêùÊ`Ì¾¾İ—„½åikmhÓMT~Á]ûïÓ%’óPZ&üO£+ºÔ¤$óoµ©|Aé-&ö¨#Yø;óZÀÅ£ÒÁ}Vš¡lñ_z0~‰6f³=9yJ{¢~EEÀ³óÊkœ7©}*’H§îúÒê\Øÿ+øX¹
+c˜IÏ¸ÄÆÈƒî	NÃÜ$BAãÊ¦„êÌÅ’\iïV4ó¢­t2-28©Æİ&”‰K!¯£„ƒaˆ?<¾ÜüÿØdq9öŞÌ0Af¹æ½K;¥[FÑ5ğ Ûšğ>æÕÓ‹À=qEş7/äÎcÄì‚vîÂ8ËçµzM˜øû¨Œ`MYb
+IÒ¼Ä4?ÑtëÅTÈO¯N1+v§$˜çLäï¥ÊûJÙÄ]’B@nˆåV„ˆíf™KÈ9rÆ÷la‰@‰Ú¸`s†­‡…†ÑlĞ™t'¶òÈ½jı«Lp/î)ã¶®m!Ó«mH~8&Rmw‘·¦\Wkë³»¡öÀå±Ö ˆú°Ë4„&¿¨Å`«;
+bó2{N –7{'|aDXT¿Ës’c†`ŸX~õ>x˜‘£h]²ï5Áó©!ññ(ş"¢UdË¥9gcìdO½;Cb(N]Ù“‰™_9ìB*!À³DN%\¥†ÂœôèÅ=%bwµ•NÇÎû8m‘8yWÃ~&‚ŸîÎ±ËB(¨`¾pâöô†ÅAm5ªˆÌ —\ BŒ.÷ü·³ù-ëîuF*;ç×[%AÂ¨“"·ğK ÿšèlf)0‡òŸ”S>}L}ìnÕâ×2ˆÒ‰ËÆstZÕ`f#×€İ{Zn—Òÿù¢.>¥2ë˜š/“Jq0ĞÛø:˜b?AİNRaeZ¨ôIºzöê¯DÖ«åís<1H<´;|š‹&_q¼…õ‘¶Í'2êóáJR#éƒt8ô:úCWÚü¼?:(pŠ0¨^:j•m¤ ëTé‰“¸†JÕ­~ş²toİo”orV!VØ-qßÏÌÉ:ÏKXïHS]7œu%`¿[YI+Ç·6ŠmÒO‚í´Ãl_´lUê4c#¾ª–a9;ÆU2‰¹òsJŞ!…éqƒjuŸüË¡’k¾Mİ
+Yï¤•˜“BéëÂÁ`CC¬rª×m÷Äó”èİ»(p¾}‹ái«/´r¬f§°KI¬ÛGFdµù´l‚ë¦w¿O2&ÂæÊ¿8ÃW÷V€nŞ‰´·×R{åHÄmkºÈLA	XZş>ŸÓÜÍ}—ŸÕÌç@»«r$ï:•u1Ş]ë‡§¢ô\VÀ×rÔb—§Á(áP5„:â”ãğ”Ñp è’ÿ	*Ò5˜°¬„t›]Ns×z3BÑ¬¾ÙqjğšéMÑ3Ä}\SJ¤Á^ïç6÷ŞMåt=ú`ù£_QU‚ÖÆKêã¾wìú_ïOgè¿YMNÔî9jzşÙ‚Ô¨4»¥9h5¤
+ï×@Uˆ^wFzßŒÛ¤Vïcf´OlL1„Ÿ?æ|æ_¨!X¤ˆÙ„¸}jhè`L3½[SÑÜ ¤‘9æt¯ÃFÃ#NK]CĞØì2}°sÿh`IgJÄÒJ„+¸|	tşNEĞ8µ/1ì_Gà×x‹ÿ…üíœ 4o£l®º‚Ke±ÈDÁY]š±Çã&í‡IQE]Ga¨OlYuÂ"û@:¯1F¾'ïæcœº×`ò¦i= a"4’—ÍÍêèÅ‚÷{¬C‰Ê3ÅÙEH^ü7XËx^kÿ«ş¢Z	;/~±Ø¬tbiü¨˜g§#Ö3áÖŸ€Ànƒc‰‰wéenûWiI‹&g;	1¯ü5=2zZ¬fç+‘º/LßÓàn{eHó“úº21ZNJ¶7`Ã‚•Ù9˜¨IBÇ½e™#gµ$–zÛwŞI“[p|¢]êûš;ÙÑ^õØ¶*M0¦cî†ÀŠ˜ªãJ¥¬îÓM>`[`e©vqÿfÌ¾€Yca2·=–ÅuèxİgÌ´Y]åÆR²TÂ©İŞ|K­T´GtdQ”ƒ¬…SíLÓ¾È2ş=à¯–ŒŒ“Ñ=Ašÿî´ñFS/?¸Q½^/Ïïí¡fßr‘ŞÏqˆæêb\Îw
+ígò0­¸j”ßÅjL»x eFçæ‚¤´%UMüŠLA•%Ï=·†ñ"Y¢Ğ‹œ˜È83÷gírWJ-½¬i>>h*6ıéÀ“^¿ÕTW@Ê=Ş+biÁ…FH6S»ÏuÜ­ğ	ZİÁÆ¡.}BT ‰uÕJ,Ö×&l™™’åò1ÆÃ4ÙèXt¾ı:ñÏ¬
+Ç-0¦4‘ƒÅ(À¦V°ë™ñTöËiJÁc6ªÀ§=ËéxÍ©ÍQİƒJ¼ íµ¨:Œ¬>¤Yı7Á»Â¼ÓÜéZ¢ätÿU-ËC 4ct—Í½P8”z¿êI}…«ıD‚cKxB=>›¶}}F~á·ÃkcÕ{„·âÄJé­T‡qÙ–3mì&5N°Ñ‰óbç³ã\¼–âJµRƒ6‡»Xx)Çv/UOLi9ŒÄ³ÉpáQ8¦İû0C«ÅÕØ­:£Öqg×œ¬tÍ±Àò‘MóáÒAÂàõò1Ï»j…ÀøV¿MÕ*B7s@'÷Ú{ëş¼ûá£xá¥j†¶éâ’”ˆ~ INz‘Éñ\>Õ¼åúñôÔXF7˜½&õ”°hr’êq ®jnŠäØarLŸ
+Nÿ•¬¾ÙOQçY>Ÿël´œ> gçí<^¿Hvÿ O“p1É8ìU­WÂ8…2ôGõ$/FäŸ”BÊÉåQ(6&æa¤½şA^÷&£3İej÷dv¼­:V÷¢À…€âgZGsd÷v%Öço÷R“½ŠàÚ—ƒË§NØAÅ!!rú¼§…*’>ÏövºÜÆER©~6Vn;MM–ìúØÅæll8Æ)Ntÿr¡bdÉhETkÒğšdš¡+g¡‡€ó¸[îM» Ìsj ò÷Rå}¥ˆìâ.I! 7DÈ‚…r+BÄv³Ì%ä9ã{¶°D Dm\°9ÃÖÃÂÃèG6èLº[yä^µşU&G¸÷”q[×¶éÕ6$?©¶»È[S®«µõÙİP{àòXkPD}ØeB“_Ôb°Õ±y™='PË›½“†¾0",ªßåÇ9É1C°O,¿zŸG<ÌÈQ´.Ù÷àùÔG‡øxÑ*²åÒœ³±Fv²§^!±Š§¬vÏÄÌ/œK¡ğÏ#4Øƒ#“¦¯ËBkOõŸL°ôÛ¦±âÃü‰7Èd¼!+»¿ßArwçXÏå
+!T0_O8q{zÃâ ¶šUDfĞK. !ÆÈ{şÛÙü–u÷:#•‹óë­’ aÔI‘[x%ĞMt¶³˜CùOÊ†)Ÿ¾G¦>v·j/ñkDéD‹eã9:­j0³‘ëÀî=-·Kéÿ|Ñ?ŸR™5LÍ—I¥8èm|L±Ÿ n'©°2O-ÔúÆ$]={õW"ëU‚òö9$Ú¾FÍE‚¯8ŞBÏúHÛæõùp%	©‘ôA:zı¡«m~Ş”8ET/µÊ6RĞuªôÄI\C¥êV?Yº·î7Ê79«+ì–¸ïçFædç%¬w¤¿©®Îº0ß­¬¤•ã[Å6é'ÁvÚa¶¯Z¶*u‹‚±_Õ	Ë°œãˆ*™Ä\ù9%ïÂô¸AµˆºOşå]sú¥nN#yUNP9lïvû§¸¸Î!Hñ¬æşu‹2Ê^”8[1Ãé,MÍ¢AªÊ@½¹Ì÷¾;®×½ÂõÓ:Ğ	¢VùéÈö2ã3İ-r\ÆÖªoˆò$c¹Øp¿8ZŸ;4æ×ôôû¦ÓÃ« P£]U½y¹R"‚ø¹ìZËIç´6xš€ªÿH²K€Rïš%tÊZß‡æQ•è×àÒõ"lÑòB7êšLÙYH@¼Ò·’?#ü&¸ñÎÇq¢¬bW‡5`Éb>*¦+Óy7oéàø¿ë"à*åÌµ2&€GJà¥qşÑ>|ä7m<$íF4>ºpjİ9ü9LB‰îÛäK„Õ#Eœos=Z3Y5#.|)/ÅmÓ$ùˆ5Û>®¾YØ–†k£i6ÉŠ´“…lÃS°‚4bì¨<É´0ğvHÑ“k·' áA©4*tqôî©C®f­(¼®¿{ô<YÔš Š:û(,x…ÂP›á6»èö&ÜâÖYó·™7ÀĞ¹ÙRÄ»«@—ó9÷µ·UÀ~ëïØ©iä“­#0U¨¸9•”ß	ê»Š×N€;B	nn©V--zS4š>?QS|ñ’bíúÙf§Ï<Üı”£ğ!¤/”¢j‹D%7-eÎhH•µ"Àt—|­7şTM<İ–ïÆ€èsUœÛw®X)ÜY!í/™­ñjr?ŒÅ“7ŠNf	— ¤µN.iŒUE«.¯s7½³+wÌyA€€µ½²@©øYÒqQL>`%Ä±L‘2ÕnÊ%u¡x?^Ÿ´ &L4ìàW†^¬›zlÛ0uÍqpö8õcAŸÂOOõi¦° ¢T°À¸1|_À¬±0™ÛËbÆ:t¼ì3fÚ¬®rc)Y*aÔno¾%‡V*Ú#:²(ÊAÖÂ©v¦i_dÿğWKFÆÉè•lÏÛÕñÛb"©ÙŸÜfÎb¯—ç÷öP3‹o¹Hï…g8Dsu1®ç;…ö3y˜V\5Jƒïb5¦]<2£ósARÚ’*††¦~E&Š Ê’ç[Ãx‘Qè‹ENLHä	œ™û³v¹+¥–^Ö´F4›ştàI¯ßŒjª‚+ åï±´àB#$›©]‡ç:îVø€­†î`ãP—>!*ĞÄºÀj%ëk¶ÌLIrùãá‡
+Fšlt,:	ß~øgV…ã–SšÈÁb`S+ØõÌx*ûå4¥à±¿UàÓeGŒtƒ¼æÔæ¨îA%^€öZÔFVÒ,Èş›à]aŞiît-Qrºÿ…ª–å! š1ºËæŞ(œÊ	½_õ¤¾ÂÕ~O¢@Á±%<¡ŸMÛ¾Š¾ãpXj;?jüÀ7ëñ7<ØPMaq3^¾r®1„O;zÈn[¡YùPˆ|ÛØ—ív"qd89çŸ0¸8á­@zF‘à;ùşÚ²‡óôïhÒ&/~&
+ó|ö¥IÁòÂY\Ö@ÙM‚uYVk=Eq§ÇdÖŸg‘z¾2³¯o÷%aoyÚÚAÚtÕ†_p×şût‰ä<”–	ÿÓèŠ.5)Éü[m*_Pz‹‰=êHşÎ|†p1Ç¨tpŸ•f([ü—Œ_¢Ùl@ONÃ¨_Qğì¼òçMjŸŠ$Ò©»¾´:öÿ
+>V®Âf’Ç3.±1ò {‚Ó07‰Ğ_àÄBĞ¸²)¡:³C±$WÚû‡Í¼h+]†ŒA‹Nªq·	eâRAÈë(á`X§#â/7ÿ?6Y\½73LY®yïÒNé–ÑBtüÈ¶æ¼yuãô"pC\‘ÿÍÁ¹ó1» »€0Îòy­^SÇ&¾Ã¾*#X“@–˜B’4¯1ÍOôİz1òSç«SÌŠİ© I æ9S ù{©ò¾RDöq—¤"dÁB¹!b»Yærœñ=[X"P¢6.Øœaëaá†aô#t&İ‰­<r¯Zÿ*“#Ü‹{Ê¸­k[Èôj’‰TGÛ]ä­)×ÕÚúìn¨=py¬5(¢‡>ì2¡É/j1Øê‚Ø¼Ì¨åÍŞIC_Õïòãœä˜!Ø'–_½Ï#fä(Z—ì{Gğ|jÈ£C|<Š¿ˆhÙriÎÙX#;ÙS¯ÀÎXÅŠSRjbæ—ÎnPÉÅ2²ïK’äJƒÔW¢¡%{øMšZdï‡Ñ=ó(üï™eÃßC”hŞv!Âº.­¦s¦*q¯ìœ¸=½aqP[M‡*"3è%€c‡ä=ÿ

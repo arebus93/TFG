@@ -41,15 +41,15 @@
           <div class="panel-heading" >Panel Informacion Sensores B105</div>
           <div class="panel-body">
 	   <div class="col-lg-6">
-            <p>Here you can see the general info of the sensors availabe,add, modify and delete sensors of the Domotics system.</p>
-	   </div>
+            <p>Here you can see the general info of the sensors availabe,but if want to add, modify and delete sensors of the Domotics system you must be resgistered as admin user .</p>
+           </div>
 	   <div class="col-lg-6">
-	    <div class="btn-group pull-center">
+	    <div class="btn-group pull-right">
              <a href="/" class="btn btn-primary btn-sm">Medidas</a>
-             <button type="button" id="buttonResAP" class="btn btn-info btn-sm">
+             <button type="button" id="buttonResAP" class="btn btn-info btn-sm" disabled="disabled">
               <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>Reset AP
              </button>
-            </div>
+	    </div>
            </div>
           </div>
          </div>
@@ -60,19 +60,19 @@
   <div class="row-markering">
    <div class="col-lg-5" style="padding-button: 15px;">
     <div class="btn-group has-error" role="group">
-     <button type="button" id="buttonReleED" class="btn btn-success">
+     <button type="button" id="buttonReleED" class="btn btn-success" disabled="disabled">
       <span class="glyphicon glyphicon-off" aria-hidden="true"></span>Relé
      </button>
-     <button type="button" id="buttonLeds" class="btn btn-success">
+     <button type="button" id="buttonLeds" class="btn btn-success" disabled="disabled">
       <span class="glyphicon glyphicon-off" aria-hidden="true"></span>Leds
      </button>
-     <button type="button" id="buttonResED" class="btn btn-info">
+     <button type="button" id="buttonResED" class="btn btn-info" disabled="disabled">
       <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>Reset ED
      </button>
-     <button type="button" id="ButtonTimer" class="btn btn-warning">
+     <button type="button" id="ButtonTimer" class="btn btn-warning" disabled="disabled">
       <span class="glyphicon glyphicon-time" aria-hidden="true"></span>Set Timer
      </button>
-     <button type="button" id="buttonDel" class="btn btn-danger">
+     <button type="button" id="buttonDel" class="btn btn-danger" disabled="disabled">
       <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>Eliminar
      </button>
     </div>
@@ -86,8 +86,8 @@
     <form id="set-form">
      <div class="col-lg-4" style="padding-top: 15px;">
      <div class="checkbox">
-       <label><input type="checkbox" id="CheckMedidas" name="checkM"> Eliminar medidas</label>
-      <div class="alert alert-warning" id="MedMessage" style="display:none;">Se eliminaran las medidas del nodo de la BD.</div>
+       <label><input type="checkbox" id="CheckMedidas" disabled="disabled" name="checkM"> Eliminar medidas</label>
+    <div class="alert alert-warning" id="MedMessage" style="display:none;">Se eliminaran las medidas del nodo de la BD.</div>
       </div>
     </div>
      <div class="col-lg-4">
@@ -164,19 +164,18 @@
           <span class="help-block" id="checkMessage"></span>
         </div>
           <div class="col-lg-offset-2 col-lg-10" style="padding-top: 15px;">
-              <button type="button" class="btn btn-primary" id= "buttonSave">Guardar</button>
-              <button type="button" class="btn btn-default" id="buttonReset">Reset</button>
+              <button type="button" class="btn btn-primary" disabled="disabled" id= "buttonSave">Guardar</button>
+              <button type="button" class="btn btn-default" disabled="disabled" id="buttonReset">Reset</button>
             </div>
          </form>
        </div>
-    </div>    
+   </div>    
     
   <!-- Se creara la tabla dinamicamente con Javascript e Interfaces DOM -->
   <script>
     // Creo un WebSocket.
      var socket = io.connect('http://'+ location.host);
      // console.log(location.host);
-
    // Cargo la tablaSensores
    $(document).ready(function(){
      var table = $('#sensorTable').DataTable( {
@@ -187,26 +186,26 @@
         if ( 2.1 > data[3] ) {
          $('td', row).eq(3).append('<span class="glyphicon glyphicon-warning-sign" style="color:#CC9900;"></span>');
         }
-	if(data[5] == 1){
-	 $('td', row).eq(5).html("");
-	 $('td', row).eq(5).append('<span class="glyphicon glyphicon-ok" style="color:#4AA02C;display:none;"></span>')
+        if(data[5] == 1){
+         $('td', row).eq(5).html("");
+         $('td', row).eq(5).append('<span class="glyphicon glyphicon-ok" style="color:#4AA02C;display:none;"></span>')
          $('td', row).eq(5).append('<span class="glyphicon glyphicon-off" style="color:#C11B17;"></span>');
-	}
-	if (data[5] == 2){
+        }
+        if (data[5] == 2){
          $('td', row).eq(5).html("");
          $('td', row).eq(5).append('<span class="glyphicon glyphicon-ok" style="color:#4AA02C;"></span>')
-	 $('td', row).eq(5).append('<span class="glyphicon glyphicon-off" style="color:#C11B17;display:none;"></span>');
-	}
-	if (data[5] == 3){
+         $('td', row).eq(5).append('<span class="glyphicon glyphicon-off" style="color:#C11B17;display:none;"></span>');
+        }
+        if (data[5] == 3){
          $('td', row).eq(5).html("");
-	 $('td', row).eq(5).append('<span class="glyphicon glyphicon-ok" style="color:#4AA02C;"></span>')
+         $('td', row).eq(5).append('<span class="glyphicon glyphicon-ok" style="color:#4AA02C;"></span>')
                            .append('<span class="glyphicon glyphicon-off" style="color:#C11B17;"></span>');
-	}
-	if(data[5]== 0){
+        }
+        if(data[5]== 0){
          $('td', row).eq(5).html("");
          $('td', row).eq(5).append('<span class="glyphicon glyphicon-ok" style="color:#4AA02C;display:none;"></span>')
                             .append('<span class="glyphicon glyphicon-off" style="color:#C11B17;display:none;"></span>');
-	}	
+        }
       },
       "oTableTools": {
       "aButtons": ["print"]
@@ -293,9 +292,10 @@
      //Carga de la Tabla
      socket.on('SLoad', function (data,bat) {
       if(data.length==bat.length){
+	console.log('OK')
        for(i=0,l1=data.length;l1>i;i++){
      	data[i][3]=bat[i];
-	//console.log(data[i]);
+	console.log(data[i]);
        }
        table.rows.add(data);
        table.draw();
@@ -369,7 +369,7 @@
 	    var flag=0; //OFF
 	    table.$('tr.selected').find("td").eq(5).children('span:last').hide();
 	   }
-	   socket.emit('SRele',rowData[4],rowData[0],flag);
+	   socket.emit('SRele',rowData[4],flag);
 	  }
 	  else{$('#ReleMessage').show();}
           table.$('tr.selected').removeClass('warning');
@@ -393,7 +393,7 @@
             var flag=0; //OFF
             table.$('tr.selected').find("td").eq(5).children('span:first').hide();
            }
-          socket.emit('SLeds',rowData[4],rowData[0],flag);
+          socket.emit('SLeds',rowData[4],flag);
           table.$('tr.selected').removeClass('warning');
           table.$('tr.selected').removeClass('selected');
         }
@@ -446,9 +446,9 @@
       	   tipos=tipos+tipo+", ";
      	  });
       	//Lo guardamos en el servidor
-      	socket.emit('SNew',[id_nodo,tipos,loc,-1,0]);
+      	socket.emit('SNew',[id_nodo,tipos,loc,-1]);
       	//Lo guardamos en la tabla
-      	table.row.add([id_nodo,tipos,loc,0,-1,0]);
+      	table.row.add([id_nodo,tipos,loc,0,-1,null]);
       	table.draw();
       }        
      });
