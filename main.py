@@ -170,9 +170,9 @@ def cambiosServidor():
        cadena='{\"ID\":'+ id_red + ',\"CNF\",{\"AT\":'+ Twake +',"ST\":'+ Tsleep +'}}\n'
 
       elif(acc=="RELE"):
-       flag = int(datos[3])
-       id_nodo = int (datos[4])
-       cadena = '{\"ID\":'+ id_red + ',\"CNF\",{\"A\":'+ datos[3] +'}}\n'
+       flag = int(datos[4])
+       id_nodo = int (datos[3])
+       cadena = '{\"ID\":'+ id_red + ',\"CNF\",{\"A\":'+ datos[4] +'}}\n'
        #- Actualiza el estado nodo
        estado=r_sensores[id_nodo][1]
        if(estado==0):   #RELE OFF/LED OFF
@@ -190,9 +190,9 @@ def cambiosServidor():
        db.updateEstado(id_nodo,estado)
 
       elif(acc=="LEDS"):
-	flag = int(datos[3])
-	id_nodo = int(datos[4])
-        cadena = '{\"ID\":'+ id_red + ',\"CNF\",{\"LD\":'+ datos[3] +'}}\n'
+	flag = int(datos[4])
+	id_nodo = int(datos[3])
+        cadena = '{\"ID\":'+ id_red + ',\"CNF\",{\"LD\":'+ datos[4] +'}}\n'
 	#- Actualiza el estado nodo
 	estado=r_sensores[int(id_nodo)][1]
 	if(estado==0): #RELE OFF/LED OFF

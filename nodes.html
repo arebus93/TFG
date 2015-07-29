@@ -361,6 +361,7 @@
 	  if(table.$('tr.selected').find("td").eq(1).text().indexOf("Cons") != -1){
 	  $('#ReleMessage').hide();
 	   var f=table.$('tr.selected').find("td").eq(5).children('span:last').css('display');
+	   console.log(f);
 	   if(f=='none' ){
 	    var flag=1; //ON
 	    table.$('tr.selected').find("td").eq(5).children('span:last').show();

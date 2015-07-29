@@ -72,19 +72,8 @@
 
     <div class="row marketing">
       <div class="col-lg-6">
-        <div class="container" id="chartLum" style="width:100%; height:300px;"></div>
+        <div class="container" id="chartCPU" style="width:100%; height:300px;"></div>
       </div>
-
-      <div class="col-lg-6">
-        <div class="container" id="chartHum" style="width:100%; height:300px;"></div>
-      </div>
-    </div>
-
-    <div class="row marketing">
-      <div class="col-lg-6">
-        <div class="container" id="chartAtm" style="width:100%; height:300px;"></div>
-      </div>
-    </div>
   </div>
 
     <!-- Comienza el Javascript -->
@@ -365,34 +354,34 @@
                 enabled: true
         },
      });
-   //Grafica de Luminosidad
-    chartLum = new Highcharts.StockChart({
+   //Grafica de Temperatura CPU
+    chartCPU = new Highcharts.StockChart({
         chart: {
-            renderTo: 'chartLum',
+            renderTo: 'chartCPU',
 	        zoomType: 'x',
             events: {
                 load: function() {
                  //Cuando cargo la grafica por primera vez, cago las
                  // medidas alamcenadas de cada sensor
-                 socket.on('LLoad', function (id, datos) {
-                  chartLum.addSeries({
+                 socket.on('GLoad', function (id, datos) {
+                  chartCPU.addSeries({
                     name: id,
                     id:id,
                     data:datos,
                     type:'spline'
                   },false);
-                  chartLum.redraw();
+                  chartCPU.redraw();
                  });
                 // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-                socket.on('LUpdate', function (id, datos) {
-                  var series=chartLum.get(id);
+                socket.on('GUpdate', function (id, datos) {
+                  var series=chartCPU.get(id);
                   series.addPoint(datos[0],true,true);
                 });
               }
             }
         },
         title: {
-            text: 'Luminosidad'
+            text: 'Temperatura CPU'
         },
         navigator : {
             enabled : false
@@ -420,135 +409,8 @@
             maxPadding: 0.2
         },
         tooltip: {
-                valueSuffix: 'lux'
-        },
-        legend: {
-                enabled: true
-        },
-        exporting: {
-                enabled: true
-        },
-     });
-  //Grafica de Presion
-    chartAtm = new Highcharts.StockChart({
-        chart: {
-            renderTo: 'chartAtm', 
-	        zoomType: 'x',
-            events: {
-                load: function() {
-                  //Cuando cargo la grafica por primera vez, cago las
-                  // medidas alamcenadas de cada sensor
-                  socket.on('ALoad', function (id, datos) {
-                   chartAtm.addSeries({
-                    name: id,
-                    id:id,
-                    data:datos,
-                    type:'spline'
-                  },false);
-                  chartAtm.redraw();        
-                 });
-            
-                 // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-                 socket.on('AUpdate', function (id, datos) {
-                  var series=chartAtm.get(id);  
-                  series.addPoint(datos[0],true,true);
-                 });
-               }
-            }
-        },
-        title: {
-            text: 'Presión Atmosférica'
-        },
-        navigator : {
-            enabled : false
-        },
-        scrollbar : {
-                enabled : false
-        },
-        rangeSelector :{
-            buttons: [
-                {type: 'minute',count: 1,text: '1M'},
-                {type: 'minute',count: 5,text: '5M'},
-                {type: 'hour',count: 1,text: '1H'},
-                {type: 'hour',count: 2,text: '2H'},
-                {type: 'all',text: 'All'}],
-                inputEnabled: false,
-                selected : 4 // all
-        },
-        xAxis: {
-            type: 'datetime',
-            maxZoom: 60 * 1000
-        },
-        yAxis: {
-            minPadding: 0.2,
-            maxPadding: 0.2
-        },
-        tooltip: {
-                valueSuffix: 'hPa'
-        },
-        legend: {
-                enabled: true
-        },
-        exporting: {
-                enabled: true
-        },
-     });
-  //Grafica de Humedad
-    chartHum = new Highcharts.StockChart({
-        chart: {
-            renderTo: 'chartHum', 
-	        zoomType: 'x',
-            events: {
-                load: function() {
-                //Cuando cargo la grafica por primera vez, cago las
-                // medidas alamcenadas de cada sensor
-                 socket.on('HLoad', function (id, datos) {
-                  chartHum.addSeries({
-                    name: id,
-                    id:id,
-                    data:datos,
-                    type:'spline'
-                  },false);
-                  chartHum.redraw();        
-                 });
-            
-                 // Cada vez que reciba un valor desde el socket, lo meto en la gráfica
-                  socket.on('HUpdate', function (id, datos) {
-                    var series=chartHum.get(id);  
-                    series.addPoint(datos[0],true,true);
-                  });
-               }
-            }
-        },
-        title: {
-            text: 'Humedad relativa'
-        },
-        navigator : {
-            enabled : false
-        },
-        scrollbar : {
-                enabled : false
-        },
-        rangeSelector :{
-            buttons: [
-                {type: 'minute',count: 1,text: '1M'},
-                {type: 'minute',count: 5,text: '5M'},
-                {type: 'hour',count: 1,text: '1H'},
-                {type: 'hour',count: 2,text: '2H'},
-                {type: 'all',text: 'All'}],
-                inputEnabled: false,
-                selected : 4 // all
-        },
-        xAxis: {
-            type: 'datetime',
-            maxZoom: 60 * 1000
-        },
-        yAxis: {
-            minPadding: 0.2,
-            maxPadding: 0.2
-        },
-        tooltip: {
-                valueSuffix: '%'
+		 valueDecimals: 2,
+		 valueSuffix: 'ºC'
         },
         legend: {
                 enabled: true

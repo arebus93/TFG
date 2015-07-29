@@ -157,12 +157,12 @@ io.sockets.on('connection', function(socket) {
  });
 
  //Set del Rele ON/OFF
-  socket.on('SRele', function (id_red,flag){
+  socket.on('SRele', function (id_red,id_nodo,flag){
   if(id_red < 0){
    console.log("Nodo no inicializado");
   }else{
   //Lo escribimos en el fichero exchange.txt
-  var linea="SET,RELE,"+id_red+","+flag+",\n"
+  var linea="SET,RELE,"+id_red+","+id_nodo+","+flag+",\n"
   fs.appendFile('exchange.txt',linea,function(err){
    if(err){console.log('exec error: ' + err);}
    });
@@ -170,12 +170,12 @@ io.sockets.on('connection', function(socket) {
  });
 
  //Set de Led ED  ON/OFF
-  socket.on('SLeds', function (id_red,flag){
+  socket.on('SLeds', function (id_red,id_nodo,flag){
   if(id_red < 0){
    console.log("Nodo no inicializado");
   }else{
   //Lo escribimos en el fichero exchange.txt
-  var linea="SET,LEDS,"+id_red+","+flag+",\n"
+  var linea="SET,LEDS,"+id_red+","+id_nodo+","+flag+",\n"
   fs.appendFile('exchange.txt',linea,function(err){
    if(err){console.log('exec error: ' + err);}
    });
@@ -296,7 +296,7 @@ function infoHist(socket) {
             if(err) {
               console.log('exec error: ' + err2);
             }else {
-              //console.log(rows);
+             //console.log(rows);
               socket_selector(socket,rows,r,'Load');
             }
           })
@@ -372,6 +372,11 @@ function socket_selector(socket,rows,r,func) {
         var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
         datos.push([date,hum]);
       break;
+      case 8: //TCPU
+	var tcpu=rows[j].Valor/100;
+        var date=new Date(rows[j].Fecha+" "+rows[j].Hora).getTime();
+        datos.push([date,tcpu]);
+      break;
       default: console.log('error referencia');
     }
   if ( func=='Update' || j==(l2-1)){
@@ -392,23 +397,25 @@ function sensores(socket) {
   var id=0;
   var bat=[];
   var datos=[];
-  db.each("SELECT Id_nodo,Id_sensor,Localizacion,Id_red FROM Sensores ORDER BY Id_sensor ASC",function(err,referencias){
+  var estado=0;	
+  db.each("SELECT Id_nodo,Id_sensor,Localizacion,Id_red,Estado FROM Sensores ORDER BY Id_sensor ASC",function(err,referencias){
     if(err){
        console.log('exec error: ' + err);
     }else{//cargamos los sensores
        var id=referencias.Id_nodo;
        if( idA!=id){ //Nuevo nodo
-       datos.push([idA,tipos,loc,null,id_red,null]);
+       datos.push([idA,tipos,loc,null,id_red,estado]);
        idA=id;//Actualizamos el idAnterior
        tipos="";
    }
       loc =referencias.Localizacion;
       id_red=referencias.Id_red;
+      estado=referencias.Estado;
       var r=(referencias.Id_sensor)%10;
       tipos=tipos+T_sensors[1][(r-1)]+", ";
     } 
   },function(error,nrows){
-    datos.push([idA,tipos,loc,null,id_red,null]);
+    datos.push([idA,tipos,loc,null,id_red,estado]);
     for(j=0,l2=datos.length;j<l2;j++){
      var id_sensor=(datos[j][0])*10+4;
     (function(id_sensor,j){
